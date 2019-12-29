@@ -1,6 +1,8 @@
 module.exports = {
   lexers:      [],
-  parsers:     [],
+  parsers:     [
+    require('./src/parsers/csv')
+  ],
   applicators: [],
   marshallers: []
 }
