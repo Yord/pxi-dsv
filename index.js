@@ -4,5 +4,7 @@ module.exports = {
     require('./src/parsers/csv')
   ],
   applicators: [],
-  marshallers: []
+  marshallers: [
+    require('./src/marshallers/csv')
+  ]
 }
