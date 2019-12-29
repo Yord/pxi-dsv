@@ -23,10 +23,10 @@ npm install @pfx/dsv
 The plugin is included in `~/.pfrc/index.js` as follows:
 
 ```js
-const dsvPlugin = require('@pfx/dsv')
+const dsv = require('@pfx/dsv')
 
 module.exports = {
-  plugins:  [dsvPlugin],
+  plugins:  [dsv],
   context:  {},
   defaults: {}
 }
