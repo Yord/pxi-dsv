@@ -62,7 +62,6 @@ test('parses a dsv file with provided header', () => {
   const lines               = anything()
 
   const jsonsTokensDefaults = (
-    
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
@@ -127,7 +126,6 @@ test('parses a dsv file with provided header and skipHeader', () => {
   const lines               = anything()
 
   const jsonsTokensDefaults = (
-    
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
@@ -317,6 +315,29 @@ function unicodeStringJsonObjectListFixedLength (blacklist) {
     })
   )
 }
+
+/*
+function unicodeStringJsonObjectList (blacklist) {
+  return integer(1, 20).chain(len =>
+    array(base64(), len, len).chain(keys => {
+      const _keys = keys.map(skipChars(blacklist))
+      
+      return array(array(unicodeString(1, 20), 1, len), 1, 20).map(valuesList =>
+        valuesList
+        .map(values => {
+          const _values = values.map(skipChars(blacklist))
+          
+          return (
+            _values
+            .map((value, i) => ({[_keys[i]]: value}))
+            .reduce((acc, json) => Object.assign(acc, json), {})
+          )
+        })
+      )
+    })
+  )
+}
+*/
 
 function skipChars (blacklist) {
   return string => {
