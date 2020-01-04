@@ -62,7 +62,6 @@ test('parses a dsv file with provided header', () => {
   const lines               = anything()
 
   const jsonsTokensDefaults = (
-    
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
@@ -127,7 +126,6 @@ test('parses a dsv file with provided header and skipHeader', () => {
   const lines               = anything()
 
   const jsonsTokensDefaults = (
-    
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
@@ -232,6 +230,218 @@ test('parses a dsv file without provided header and skipHeader', () => {
   )
 })
 
+test('parses a dsv file with variable values lengths and the fixed length option', () => {
+  const argv  = {verbose: 0}
+  const lines = anything()
+
+  const jsonsTokensDefaultsErr = (
+    oneof(...delimiters).chain(delimiter =>
+      oneof(...quoteOrEscape).chain(quote =>
+        oneof(...quoteOrEscape).chain(escape =>
+          unicodeStringJsonObjectListFixedLength([delimiter, quote, escape]).chain(jsons => 
+            integer(0, jsons.length - 1).map(noOfDeletes => {
+              const tokens = noOfDeletes === 0 ? (
+                [Object.keys(jsons[0]).join(delimiter)]
+                .concat(jsons.map(json => Object.values(json).join(delimiter)))
+              ) : (
+                [Object.keys(jsons[0]).join(delimiter)]
+                .concat(
+                  jsons.slice(0, noOfDeletes).map(json => Object.values(json).slice(1).join(delimiter))
+                )
+                .concat(
+                  jsons.slice(noOfDeletes).map(json => Object.values(json).join(delimiter))
+                )
+              )
+              const _jsons = jsons.slice(noOfDeletes, jsons.length)
+
+              const err = []
+              for (let i = 0; i < noOfDeletes; i++) {
+                const msg = {msg: 'Number of values does not match number of headers'}
+                err.push(msg)
+              }
+  
+              return {
+                err,
+                jsons: _jsons,
+                tokens,
+                defaults: {
+                  delimiter,
+                  quote,
+                  escape,
+                  header:          '[]',
+                  skipHeader:      false,
+                  fixedLength:     true,
+                  trimWhitespaces: false,
+                  skipEmptyValues: false,
+                  missingIsNull:   false,
+                  emptyIsNull:     false
+                }
+              }
+            })
+          )
+        )
+      )
+    )
+  )
+  
+  assert(
+    property(lines, jsonsTokensDefaultsErr, (lines, {jsons, tokens, defaults, err}) =>
+      expect(
+        parserFactory(defaults)(argv)(tokens, lines)
+      ).toStrictEqual(
+        {err, jsons}
+      )
+    )
+  )
+})
+
+test('parses a dsv file with variable values lengths and the fixed length option with lines', () => {
+  const argv  = {verbose: 1}
+
+  const jsonsTokensDefaultsErrLines = (
+    oneof(...delimiters).chain(delimiter =>
+      oneof(...quoteOrEscape).chain(quote =>
+        oneof(...quoteOrEscape).chain(escape =>
+          unicodeStringJsonObjectListFixedLength([delimiter, quote, escape]).chain(jsons => 
+            integer().chain(lineOffset =>
+              integer(0, jsons.length - 1).map(noOfDeletes => {
+                const tokens = noOfDeletes === 0 ? (
+                  [Object.keys(jsons[0]).join(delimiter)]
+                  .concat(jsons.map(json => Object.values(json).join(delimiter)))
+                ) : (
+                  [Object.keys(jsons[0]).join(delimiter)]
+                  .concat(
+                    jsons.slice(0, noOfDeletes).map(json => Object.values(json).slice(1).join(delimiter))
+                  )
+                  .concat(
+                    jsons.slice(noOfDeletes).map(json => Object.values(json).join(delimiter))
+                  )
+                )
+                const _jsons = jsons.slice(noOfDeletes, jsons.length)
+  
+                const lines = []
+                for (let i = 0; i < tokens.length; i++) lines.push(lineOffset + i)
+
+                const err = []
+                for (let i = 0; i < noOfDeletes; i++) {
+                  err.push({
+                    msg:  'Number of values does not match number of headers',
+                    line: lines[i + 1]
+                  })
+                }
+    
+                return {
+                  lines,
+                  err,
+                  jsons: _jsons,
+                  tokens,
+                  defaults: {
+                    delimiter,
+                    quote,
+                    escape,
+                    header:          '[]',
+                    skipHeader:      false,
+                    fixedLength:     true,
+                    trimWhitespaces: false,
+                    skipEmptyValues: false,
+                    missingIsNull:   false,
+                    emptyIsNull:     false
+                  }
+                }
+              })
+            )
+          )
+        )
+      )
+    )
+  )
+  
+  assert(
+    property(jsonsTokensDefaultsErrLines, ({jsons, tokens, defaults, err, lines}) =>
+      expect(
+        parserFactory(defaults)(argv)(tokens, lines)
+      ).toStrictEqual(
+        {err, jsons}
+      )
+    )
+  )
+})
+
+test('parses a dsv file with variable values lengths and the fixed length option with lines and info', () => {
+  const argv  = {verbose: 2}
+
+  const jsonsTokensDefaultsErrLines = (
+    oneof(...delimiters).chain(delimiter =>
+      oneof(...quoteOrEscape).chain(quote =>
+        oneof(...quoteOrEscape).chain(escape =>
+          unicodeStringJsonObjectListFixedLength([delimiter, quote, escape]).chain(jsons => 
+            integer().chain(lineOffset =>
+              integer(0, jsons.length - 1).map(noOfDeletes => {
+                const tokens = noOfDeletes === 0 ? (
+                  [Object.keys(jsons[0]).join(delimiter)]
+                  .concat(jsons.map(json => Object.values(json).join(delimiter)))
+                ) : (
+                  [Object.keys(jsons[0]).join(delimiter)]
+                  .concat(
+                    jsons.slice(0, noOfDeletes).map(json => Object.values(json).slice(1).join(delimiter))
+                  )
+                  .concat(
+                    jsons.slice(noOfDeletes).map(json => Object.values(json).join(delimiter))
+                  )
+                )
+                const _jsons = jsons.slice(noOfDeletes, jsons.length)
+  
+                const lines = []
+                for (let i = 0; i < tokens.length; i++) lines.push(lineOffset + i)
+
+                const err = []
+                for (let i = 0; i < noOfDeletes; i++) {
+                  const values = Object.values(jsons[i]).slice(1)
+                  const keys   = Object.keys(jsons[0])
+                  err.push({
+                    msg:  'Number of values does not match number of headers',
+                    line: lines[i + 1],
+                    info: `values [${values.join(',')}] and headers [${keys.join(',')}]`
+                  })
+                }
+    
+                return {
+                  lines,
+                  err,
+                  jsons: _jsons,
+                  tokens,
+                  defaults: {
+                    delimiter,
+                    quote,
+                    escape,
+                    header:          '[]',
+                    skipHeader:      false,
+                    fixedLength:     true,
+                    trimWhitespaces: false,
+                    skipEmptyValues: false,
+                    missingIsNull:   false,
+                    emptyIsNull:     false
+                  }
+                }
+              })
+            )
+          )
+        )
+      )
+    )
+  )
+  
+  assert(
+    property(jsonsTokensDefaultsErrLines, ({jsons, tokens, defaults, err, lines}) =>
+      expect(
+        parserFactory(defaults)(argv)(tokens, lines)
+      ).toStrictEqual(
+        {err, jsons}
+      )
+    )
+  )
+})
+
 function unicodeStringJsonObjectListFixedLength (blacklist) {
   return integer(1, 20).chain(len =>
     array(base64(), len, len).chain(keys => {
@@ -252,6 +462,29 @@ function unicodeStringJsonObjectListFixedLength (blacklist) {
     })
   )
 }
+
+/*
+function unicodeStringJsonObjectList (blacklist) {
+  return integer(1, 20).chain(len =>
+    array(base64(), len, len).chain(keys => {
+      const _keys = keys.map(skipChars(blacklist))
+      
+      return array(array(unicodeString(1, 20), 1, len), 1, 20).map(valuesList =>
+        valuesList
+        .map(values => {
+          const _values = values.map(skipChars(blacklist))
+          
+          return (
+            _values
+            .map((value, i) => ({[_keys[i]]: value}))
+            .reduce((acc, json) => Object.assign(acc, json), {})
+          )
+        })
+      )
+    })
+  )
+}
+*/
 
 function skipChars (blacklist) {
   return string => {
