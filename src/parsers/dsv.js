@@ -7,7 +7,7 @@ module.exports = {
     '--pescape, --escape, -C [char]\nCharacter used to escape quote in strings.\n\n' +
     '--pheader, --header, -H [string]\nProvide a custom header as a JSON array string.\n\n' +
     '--pskipHeader, --skipHeader, -S [boolean]\nDo not interpret first line as header\n\n' +
-    '--pfixedLength, --fixedLength, -F [boolean]\nWhether each line must have the same number of values.\n\n' +
+    '--pfixedLength, --fixedLength, -F [boolean]\nControls, whether each line has the same number of values. Ignores all deviating lines while reporting errors.\n\n' +
     '--ptrimWhitespaces, --trimWhitespaces, -W [boolean]\nTrim whitespaces around values.\n\n' +
     '--pskipEmptyValues, --skipEmptyValues, -E [boolean]\nSkip values that are the empty String.\n\n' +
     '--pmissingIsNull, --missingIsNull, -M [boolean]\nTreat missing fields (if #values < #keys) as null.\n\n' +
