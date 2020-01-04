@@ -83,12 +83,9 @@ function dsv (defaults) {
 
       for (let i = 0; i < postProcessingFs.length; i++) {
         const f   = postProcessingFs[i]
-        const res = f(values, line)
-        if (res.err.length > 0) {
-          err     = err.concat(res.err)
-          break
-        }
-        else values2 = res.values
+        const res = f(values2, line)
+        if (res.err.length > 0) err = err.concat(res.err)
+        values2   = res.values
       }
 
       return {err, values: values2}
@@ -153,29 +150,31 @@ function dsv (defaults) {
         }
 
         const line = verbose > 0 ? lines[i] : undefined
-        const {err: e, values: values2} = postProcessingF(values, line)
-        if (e.length > 0) err           = err.concat(e)
-        else              values        = values2
+        const res  = postProcessingF(values, line)
+        if (res.err.length > 0) err = err.concat(res.err)
+        values     = res.values
 
-        if (!headerIsSet) {
-          keys             = values
-          keysLength       = keys.length
-          headerIsSet      = true
-          ignoreDataHeader = false
-        } else if (returnTypeObject) {
-          const json    = {}
-          
-          const until   = Math.min(keysLength, values.length)
-
-          for (let j = 0; j < until; j++) {
-            const key   = keys[j]
-            const value = values[j]
-            json[key]   = value
+        if (values.length > 0) {
+          if (!headerIsSet) {
+            keys             = values
+            keysLength       = keys.length
+            headerIsSet      = true
+            ignoreDataHeader = false
+          } else if (returnTypeObject) {
+            const json    = {}
+            
+            const until   = Math.min(keysLength, values.length)
+  
+            for (let j = 0; j < until; j++) {
+              const key   = keys[j]
+              const value = values[j]
+              json[key]   = value
+            }
+  
+            jsons.push(json)
+          } else {
+            jsons.push(values)
           }
-
-          jsons.push(json)
-        } else {
-          jsons.push(values)
         }
       }
 
@@ -183,16 +182,14 @@ function dsv (defaults) {
     }
 
     function controlFixedLength (values, lineNo) {
-      const err = []
-
       if (headerIsSet && keysLength !== values.length) {
         const msg  = {msg: 'Number of values does not match number of headers'}
         const line = verbose > 0 ? {line: lineNo}                                                         : {}
         const info = verbose > 1 ? {info: `values [${values.join(',')}] and headers [${keys.join(',')}]`} : {}
-        err.push(Object.assign(msg, line, info))
+        return {err: [Object.assign(msg, line, info)], values: []}
+      } else {
+        return {err: [], values}
       }
-    
-      return {err, values}
     }
     
     // NOT YET IMPLEMENTED
