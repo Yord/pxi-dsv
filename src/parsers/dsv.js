@@ -58,6 +58,7 @@ function dsv (defaults) {
     if (err.length > 0) return () => ({err, jsons: []})
 
     let keys               = JSON.parse(_header)
+    let keysLength         = keys.length
 
     // skipHeader | header || return type | keys            | data header   || headerIsSet | ignoreDataHeader | returnTypeObject
     // true       | [...]  || JSON object | provided header | ignore        || true        | true             | true
@@ -65,19 +66,19 @@ function dsv (defaults) {
     // false      | [...]  || JSON object | provided header | treat as data || true        | false            | true
     // false      | []     || JSON object | data header     | treat as keys || false       | false            | true
 
-    let headerIsSet        =  _skipHeader || keys.length > 0
+    let headerIsSet        =  _skipHeader || keysLength > 0
     let ignoreDataHeader   =  _skipHeader
-    const returnTypeObject = !_skipHeader || keys.length > 0
+    const returnTypeObject = !_skipHeader || keysLength > 0
 
     const postProcessingFs = []
-    if (_fixedLength)     postProcessingFs.push(controlFixedLength(verbose, headerIsSet))
+    if (_fixedLength)     postProcessingFs.push(controlFixedLength)
     if (_trimWhitespaces) postProcessingFs.push(removeWhitespaces(verbose))
     if (_skipEmptyValues) postProcessingFs.push(removeEmptyValues(verbose))
     if (_emptyIsNull)     postProcessingFs.push(emptyToNull(verbose))
     if (_missingIsNull)   postProcessingFs.push(missingToNull(verbose))
 
     const postProcessingF = (values, line) => {
-      const err   = []
+      let err     = []
       let values2 = values
 
       for (let i = 0; i < postProcessingFs.length; i++) {
@@ -94,7 +95,7 @@ function dsv (defaults) {
     }
 
     return (tokens, lines) => {
-      const err     = []
+      let err       = []
       const jsons   = []
 
       const start   = ignoreDataHeader ? 1 : 0
@@ -147,6 +148,10 @@ function dsv (defaults) {
           }
         }
 
+        if (keysLength === 0 && !returnTypeObject) {
+          keysLength = values.length
+        }
+
         const line = verbose > 0 ? lines[i] : undefined
         const {err: e, values: values2} = postProcessingF(values, line)
         if (e.length > 0) err           = err.concat(e)
@@ -154,12 +159,13 @@ function dsv (defaults) {
 
         if (!headerIsSet) {
           keys             = values
+          keysLength       = keys.length
           headerIsSet      = true
           ignoreDataHeader = false
         } else if (returnTypeObject) {
           const json    = {}
           
-          const until   = Math.min(keys.length, values.length)
+          const until   = Math.min(keysLength, values.length)
 
           for (let j = 0; j < until; j++) {
             const key   = keys[j]
@@ -175,6 +181,55 @@ function dsv (defaults) {
 
       return {err, jsons}
     }
+
+    function controlFixedLength (values, lineNo) {
+      const err = []
+
+      if (headerIsSet && keysLength !== values.length) {
+        const msg  = {msg: 'Number of values does not match number of headers'}
+        const line = verbose > 0 ? {line: lineNo}                                                         : {}
+        const info = verbose > 1 ? {info: `values [${values.join(',')}] and headers [${keys.join(',')}]`} : {}
+        err.push(Object.assign(msg, line, info))
+      }
+    
+      return {err, values}
+    }
+    
+    // NOT YET IMPLEMENTED
+    function removeWhitespaces (verbose) {
+      return (values, line) => {
+        const err = []
+    
+        return {err, values}
+      }
+    }
+    
+    // NOT YET IMPLEMENTED
+    function removeEmptyValues (verbose) {
+      return (values, line) => {
+        const err = []
+    
+        return {err, values}
+      }
+    }
+    
+    // NOT YET IMPLEMENTED
+    function emptyToNull (verbose) {
+      return (values, line) => {
+        const err = []
+    
+        return {err, values}
+      }
+    }
+    
+    // NOT YET IMPLEMENTED
+    function missingToNull (verbose) {
+      return (values, line) => {
+        const err = []
+    
+        return {err, values}
+      }
+    }
   }
 }
 
@@ -186,55 +241,4 @@ function handleMissingOption (field, options, argv) {
     return [Object.assign(msg, line, info)]
   }
   return []
-}
-
-function controlFixedLength (verbose, headerIsSet) {
-  return (values, lineNo) => {
-    const err = []
-
-    if (headerIsSet && keys.length !== values.length) {
-      const msg  = {msg: 'Number of values does not match number of headers'}
-      const line = verbose > 0 ? {line: lineNo}                                                         : {}
-      const info = verbose > 1 ? {info: `values [${values.join(',')}] and headers [${keys.join(',')}]`} : {}
-      err.push(Object.assign(msg, line, info))
-    }
-  
-    return {err, values}
-  }
-}
-
-// NOT YET IMPLEMENTED
-function removeWhitespaces (verbose) {
-  return (values, line) => {
-    const err = []
-
-    return {err, values}
-  }
-}
-
-// NOT YET IMPLEMENTED
-function removeEmptyValues (verbose) {
-  return (values, line) => {
-    const err = []
-
-    return {err, values}
-  }
-}
-
-// NOT YET IMPLEMENTED
-function emptyToNull (verbose) {
-  return (values, line) => {
-    const err = []
-
-    return {err, values}
-  }
-}
-
-// NOT YET IMPLEMENTED
-function missingToNull (verbose) {
-  return (values, line) => {
-    const err = []
-
-    return {err, values}
-  }
 }

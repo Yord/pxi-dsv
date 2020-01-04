@@ -1,4 +1,4 @@
-const {anything, array, assert, base64, constant, integer, oneof, property, unicodeString} = require('fast-check')
+const {anything, array, assert, base64, boolean, constant, integer, oneof, property, unicodeString} = require('fast-check')
 const {dsv: parserFactory} = require('./dsv')
 
 const delimiters    = [',', ';', '.', '|', '/', '-', '+', '$', '#', '!'].map(constant)
@@ -14,29 +14,31 @@ test('parses a dsv file without provided header', () => {
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
-          unicodeStringJsonObjectList([delimiter, quote, escape]).map(jsons => {
-            const tokens = (
-              [Object.keys(jsons[0]).join(delimiter)]
-              .concat(jsons.map(json => Object.values(json).join(delimiter)))
-            )
-
-            return {
-              jsons,
-              tokens,
-              defaults: {
-                delimiter,
-                quote,
-                escape,
-                header:          '[]',
-                skipHeader:      false,
-                fixedLength:     false,
-                trimWhitespaces: false,
-                skipEmptyValues: false,
-                missingIsNull:   false,
-                emptyIsNull:     false
+          boolean().chain(fixedLength =>
+            unicodeStringJsonObjectListFixedLength([delimiter, quote, escape]).map(jsons => {
+              const tokens = (
+                [Object.keys(jsons[0]).join(delimiter)]
+                .concat(jsons.map(json => Object.values(json).join(delimiter)))
+              )
+  
+              return {
+                jsons,
+                tokens,
+                defaults: {
+                  delimiter,
+                  quote,
+                  escape,
+                  header:          '[]',
+                  skipHeader:      false,
+                  fixedLength,
+                  trimWhitespaces: false,
+                  skipEmptyValues: false,
+                  missingIsNull:   false,
+                  emptyIsNull:     false
+                }
               }
-            }
-          })
+            })
+          )
         )
       )
     )
@@ -60,41 +62,46 @@ test('parses a dsv file with provided header', () => {
   const lines               = anything()
 
   const jsonsTokensDefaults = (
-    array(base64(), 20, 20).chain(keys =>
-      oneof(...delimiters).chain(delimiter =>
-        oneof(...quoteOrEscape).chain(quote =>
-          oneof(...quoteOrEscape).chain(escape =>
-            unicodeStringJsonObjectList([delimiter, quote, escape]).map(jsons => {
-              const _jsons  = (
-                [Object.keys(jsons[0]).reduce((acc, key, i) => ({...acc, [keys[i]]: key}), {})]
-                .concat(
-                  jsons.map(json =>
-                    Object.values(json).reduce((acc, value, i) => ({...acc, [keys[i]]: value}), {})
+    
+    oneof(...delimiters).chain(delimiter =>
+      oneof(...quoteOrEscape).chain(quote =>
+        oneof(...quoteOrEscape).chain(escape =>
+          boolean().chain(fixedLength =>
+            unicodeStringJsonObjectListFixedLength([delimiter, quote, escape]).chain(jsons => {
+              const len = Object.keys(jsons[0]).length
+
+              return array(base64(), len, len).map(keys => {
+                const _jsons  = (
+                  [Object.keys(jsons[0]).reduce((acc, key, i) => ({...acc, [keys[i]]: key}), {})]
+                  .concat(
+                    jsons.map(json =>
+                      Object.values(json).reduce((acc, value, i) => ({...acc, [keys[i]]: value}), {})
+                    )
                   )
                 )
-              )
-              const tokens = (
-                [Object.keys(jsons[0]).join(delimiter)]
-                .concat(jsons.map(json => Object.values(json).join(delimiter)))
-              )
-              const header = '[' + keys.map(key => '"' + key + '"').join(',') + ']'
-  
-              return {
-                jsons: _jsons,
-                tokens,
-                defaults: {
-                  delimiter,
-                  quote,
-                  escape,
-                  header,
-                  skipHeader:      false,
-                  fixedLength:     false,
-                  trimWhitespaces: false,
-                  skipEmptyValues: false,
-                  missingIsNull:   false,
-                  emptyIsNull:     false
+                const tokens = (
+                  [Object.keys(jsons[0]).join(delimiter)]
+                  .concat(jsons.map(json => Object.values(json).join(delimiter)))
+                )
+                const header = '[' + keys.map(key => '"' + key + '"').join(',') + ']'
+    
+                return {
+                  jsons: _jsons,
+                  tokens,
+                  defaults: {
+                    delimiter,
+                    quote,
+                    escape,
+                    header,
+                    skipHeader:      false,
+                    fixedLength,
+                    trimWhitespaces: false,
+                    skipEmptyValues: false,
+                    missingIsNull:   false,
+                    emptyIsNull:     false
+                  }
                 }
-              }
+              })
             })
           )
         )
@@ -120,36 +127,41 @@ test('parses a dsv file with provided header and skipHeader', () => {
   const lines               = anything()
 
   const jsonsTokensDefaults = (
-    array(base64(), 20, 20).chain(keys =>
-      oneof(...delimiters).chain(delimiter =>
-        oneof(...quoteOrEscape).chain(quote =>
-          oneof(...quoteOrEscape).chain(escape =>
-            unicodeStringJsonObjectList([delimiter, quote, escape]).map(jsons => {
-              const _jsons  = jsons.map(json =>
-                Object.values(json).reduce((acc, value, i) => ({...acc, [keys[i]]: value}), {})
-              )
-              const tokens = (
-                [Object.keys(jsons[0]).join(delimiter)]
-                .concat(jsons.map(json => Object.values(json).join(delimiter)))
-              )
-              const header = '[' + keys.map(key => '"' + key + '"').join(',') + ']'
-  
-              return {
-                jsons: _jsons,
-                tokens,
-                defaults: {
-                  delimiter,
-                  quote,
-                  escape,
-                  header,
-                  skipHeader:      true,
-                  fixedLength:     false,
-                  trimWhitespaces: false,
-                  skipEmptyValues: false,
-                  missingIsNull:   false,
-                  emptyIsNull:     false
+    
+    oneof(...delimiters).chain(delimiter =>
+      oneof(...quoteOrEscape).chain(quote =>
+        oneof(...quoteOrEscape).chain(escape =>
+          boolean().chain(fixedLength =>
+            unicodeStringJsonObjectListFixedLength([delimiter, quote, escape]).chain(jsons => {
+              const len = Object.keys(jsons[0]).length
+
+              return array(base64(), len, len).map(keys => {
+                const _jsons  = jsons.map(json =>
+                  Object.values(json).reduce((acc, value, i) => ({...acc, [keys[i]]: value}), {})
+                )
+                const tokens = (
+                  [Object.keys(jsons[0]).join(delimiter)]
+                  .concat(jsons.map(json => Object.values(json).join(delimiter)))
+                )
+                const header = '[' + keys.map(key => '"' + key + '"').join(',') + ']'
+    
+                return {
+                  jsons: _jsons,
+                  tokens,
+                  defaults: {
+                    delimiter,
+                    quote,
+                    escape,
+                    header,
+                    skipHeader:      true,
+                    fixedLength,
+                    trimWhitespaces: false,
+                    skipEmptyValues: false,
+                    missingIsNull:   false,
+                    emptyIsNull:     false
+                  }
                 }
-              }
+              })
             })
           )
         )
@@ -178,30 +190,32 @@ test('parses a dsv file without provided header and skipHeader', () => {
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
-          unicodeStringJsonObjectList([delimiter, quote, escape]).map(jsons => {
-            const _jsons  = jsons.map(json => Object.values(json))
-            const tokens = (
-              [Object.keys(jsons[0]).join(delimiter)]
-              .concat(jsons.map(json => Object.values(json).join(delimiter)))
-            )
-
-            return {
-              jsons: _jsons,
-              tokens,
-              defaults: {
-                delimiter,
-                quote,
-                escape,
-                header:          '[]',
-                skipHeader:      true,
-                fixedLength:     false,
-                trimWhitespaces: false,
-                skipEmptyValues: false,
-                missingIsNull:   false,
-                emptyIsNull:     false
+          boolean().chain(fixedLength =>
+            unicodeStringJsonObjectListFixedLength([delimiter, quote, escape]).map(jsons => {
+              const _jsons  = jsons.map(json => Object.values(json))
+              const tokens = (
+                [Object.keys(jsons[0]).join(delimiter)]
+                .concat(jsons.map(json => Object.values(json).join(delimiter)))
+              )
+  
+              return {
+                jsons: _jsons,
+                tokens,
+                defaults: {
+                  delimiter,
+                  quote,
+                  escape,
+                  header:          '[]',
+                  skipHeader:      true,
+                  fixedLength,
+                  trimWhitespaces: false,
+                  skipEmptyValues: false,
+                  missingIsNull:   false,
+                  emptyIsNull:     false
+                }
               }
-            }
-          })
+            })
+          )
         )
       )
     )
@@ -218,56 +232,7 @@ test('parses a dsv file without provided header and skipHeader', () => {
   )
 })
 
-test('parses a dsv file with fixed length', () => {
-  const err                 = []
-
-  const argv                = {verbose: 0}
-  const lines               = anything()
-
-  const jsonsTokensDefaults = (
-    oneof(...delimiters).chain(delimiter =>
-      oneof(...quoteOrEscape).chain(quote =>
-        oneof(...quoteOrEscape).chain(escape =>
-          unicodeStringJsonObjectList([delimiter, quote, escape]).map(jsons => {
-            const tokens = (
-              [Object.keys(jsons[0]).join(delimiter)]
-              .concat(jsons.map(json => Object.values(json).join(delimiter)))
-            )
-
-            return {
-              jsons,
-              tokens,
-              defaults: {
-                delimiter,
-                quote,
-                escape,
-                header:          '[]',
-                skipHeader:      false,
-                fixedLength:     true,
-                trimWhitespaces: false,
-                skipEmptyValues: false,
-                missingIsNull:   false,
-                emptyIsNull:     false
-              }
-            }
-          })
-        )
-      )
-    )
-  )
-  
-  assert(
-    property(lines, jsonsTokensDefaults, (lines, {jsons, tokens, defaults}) =>
-      expect(
-        parserFactory(defaults)(argv)(tokens, lines)
-      ).toStrictEqual(
-        {err, jsons}
-      )
-    )
-  )
-})
-
-function unicodeStringJsonObjectList (blacklist) {
+function unicodeStringJsonObjectListFixedLength (blacklist) {
   return integer(1, 20).chain(len =>
     array(base64(), len, len).chain(keys => {
       const _keys = keys.map(skipChars(blacklist))
