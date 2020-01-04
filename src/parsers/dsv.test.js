@@ -367,6 +367,81 @@ test('parses a dsv file with variable values lengths and the fixed length option
   )
 })
 
+test('parses a dsv file with variable values lengths and the fixed length option with lines and info', () => {
+  const argv  = {verbose: 2}
+
+  const jsonsTokensDefaultsErrLines = (
+    oneof(...delimiters).chain(delimiter =>
+      oneof(...quoteOrEscape).chain(quote =>
+        oneof(...quoteOrEscape).chain(escape =>
+          unicodeStringJsonObjectListFixedLength([delimiter, quote, escape]).chain(jsons => 
+            integer().chain(lineOffset =>
+              integer(0, jsons.length - 1).map(noOfDeletes => {
+                const tokens = noOfDeletes === 0 ? (
+                  [Object.keys(jsons[0]).join(delimiter)]
+                  .concat(jsons.map(json => Object.values(json).join(delimiter)))
+                ) : (
+                  [Object.keys(jsons[0]).join(delimiter)]
+                  .concat(
+                    jsons.slice(0, noOfDeletes).map(json => Object.values(json).slice(1).join(delimiter))
+                  )
+                  .concat(
+                    jsons.slice(noOfDeletes).map(json => Object.values(json).join(delimiter))
+                  )
+                )
+                const _jsons = jsons.slice(noOfDeletes, jsons.length)
+  
+                const lines = []
+                for (let i = 0; i < tokens.length; i++) lines.push(lineOffset + i)
+
+                const err = []
+                for (let i = 0; i < noOfDeletes; i++) {
+                  const values = Object.values(jsons[i]).slice(1)
+                  const keys   = Object.keys(jsons[0])
+                  err.push({
+                    msg:  'Number of values does not match number of headers',
+                    line: lines[i + 1],
+                    info: `values [${values.join(',')}] and headers [${keys.join(',')}]`
+                  })
+                }
+    
+                return {
+                  lines,
+                  err,
+                  jsons: _jsons,
+                  tokens,
+                  defaults: {
+                    delimiter,
+                    quote,
+                    escape,
+                    header:          '[]',
+                    skipHeader:      false,
+                    fixedLength:     true,
+                    trimWhitespaces: false,
+                    skipEmptyValues: false,
+                    missingIsNull:   false,
+                    emptyIsNull:     false
+                  }
+                }
+              })
+            )
+          )
+        )
+      )
+    )
+  )
+  
+  assert(
+    property(jsonsTokensDefaultsErrLines, ({jsons, tokens, defaults, err, lines}) =>
+      expect(
+        parserFactory(defaults)(argv)(tokens, lines)
+      ).toStrictEqual(
+        {err, jsons}
+      )
+    )
+  )
+})
+
 function unicodeStringJsonObjectListFixedLength (blacklist) {
   return integer(1, 20).chain(len =>
     array(base64(), len, len).chain(keys => {
