@@ -717,6 +717,66 @@ test('parses a dsv file and convert missing values (if #keys > #values) to nulls
   )
 })
 
+test('parses a dsv file and skip null values', () => {
+  const argv  = {verbose: 0}
+  const lines = anything()
+
+  const jsonsTokensDefaultsErr = (
+    oneof(...delimiters).chain(delimiter =>
+      oneof(...quoteOrEscape).chain(quote =>
+        oneof(...quoteOrEscape).chain(escape =>
+          unicodeStringJsonObjectListFixedLength([delimiter, quote, escape], 2).chain(jsons => 
+            integer(0, jsons.length - 1).map(noOfNulls => {
+              const err = []
+
+              const _jsons = jsons.slice(noOfNulls)
+
+              const tokens = noOfNulls === 0 ? (
+                [Object.keys(jsons[0]).join(delimiter)]
+                .concat(jsons.map(json => Object.values(json).join(delimiter)))
+              ) : (
+                [Object.keys(jsons[0]).join(delimiter)]
+                .concat(jsons.slice(0, noOfNulls).map(() => null))
+                .concat(jsons.slice(noOfNulls).map(json => Object.values(json).join(delimiter)))
+              )
+              
+              return {
+                noOfNulls,
+                err,
+                jsons: _jsons,
+                tokens,
+                defaults: {
+                  delimiter,
+                  quote,
+                  escape,
+                  header:          '[]',
+                  skipHeader:      false,
+                  fixedLength:     false,
+                  trimWhitespaces: false,
+                  skipEmptyValues: false,
+                  missingIsNull:   false,
+                  emptyIsNull:     false,
+                  skipNull:        true
+                }
+              }
+            })
+          )
+        )
+      )
+    )
+  )
+  
+  assert(
+    property(lines, jsonsTokensDefaultsErr, (lines, {jsons, tokens, defaults, err}) =>
+      expect(
+        parserFactory(defaults)(argv)(tokens, lines)
+      ).toStrictEqual(
+        {err, jsons}
+      )
+    )
+  )
+})
+
 function unicodeStringJsonObjectListFixedLength (blacklist, minLen = 1) {
   return integer(minLen, 20).chain(len =>
     array(base64(), len, len).chain(keys => {
