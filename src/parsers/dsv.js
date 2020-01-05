@@ -241,11 +241,18 @@ function dsv (defaults) {
       return {err: [], values: values2}
     }
     
-    // NOT YET IMPLEMENTED
-    function missingToNull (values, lineNo) {
-      const err = []
-  
-      return {err, values}
+    function missingToNull (values) {
+      if (headerIsSet) {
+        const len     = values.length
+        const values2 = []
+        for (let i = 0; i < keysLength; i++) {
+          const value = i < len ? values[i] : null
+          values2.push(value)
+        }
+        return {err: [], values: values2}
+      } else {
+        return {err: [], values}
+      }
     }
   }
 }
