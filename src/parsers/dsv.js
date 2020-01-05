@@ -1,18 +1,18 @@
 module.exports = {
   name: 'dsv',
   desc: (
-    'is a delimiter separated values parser:\n\n' +
+    'is a delimiter-separated values parser:\n\n' +
     '--pdelimiter, --delimiter, -D [char]\nDelimiter used to separate values.\n\n' +
     '--pquote, --quote, -Q [char]\nCharacter used to quote strings.\n\n' +
     '--pescape, --escape, -C [char]\nCharacter used to escape quote in strings.\n\n' +
     '--pheader, --header, -H [string]\nProvide a custom header as a JSON array string.\n\n' +
-    '--pskip-header, --skip-header, -S [boolean]\nDo not interpret first line as header\n\n' +
-    '--pfixed-length, --fixed-length, -F [boolean]\nControls, whether each line has the same number of values. Ignores all deviating lines while reporting errors.\n\n' +
-    '--pskip-empty-values, --skip-empty-values, -E [boolean]\nSkip values that are the empty String.\n\n' +
-    '--ptrim-whitespaces, --trim-whitespaces, -W [boolean]\nTrim whitespaces around values.\n\n' +
-    '--pempty-is-null, --empty-is-null, -I [boolean]\nTreat empty fields as null.\n\n' +
-    '--pskip-null, --skip-null, -N [boolean]\nSkip values that are null.\n\n' +
-    '--pmissing-is-null, --missing-is-null, -M [boolean]\nTreat missing fields (if #values < #keys) as null.\n'
+    '--pskip-header, --skip-header, -S [boolean]\nDo not interpret first line as header.\n\n' +
+    '--pfixed-length, --fixed-length, -F [boolean]\nPost-processing #1: Controls, whether each line has the same number of values. Ignores all deviating lines while reporting errors.\n\n' +
+    '--pskip-empty-values, --skip-empty-values, -E [boolean]\nPost-processing #2: Skip values that are the empty String.\n\n' +
+    '--ptrim-whitespaces, --trim-whitespaces, -W [boolean]\nPost-processing #3: Trim whitespaces around values.\n\n' +
+    '--pempty-is-null, --empty-is-null, -I [boolean]\nPost-processing #4: Treat empty fields as null.\n\n' +
+    '--pskip-null, --skip-null, -N [boolean]\nPost-processing #5: Skip values that are null.\n\n' +
+    '--pmissing-is-null, --missing-is-null, -M [boolean]\nPost-processing #6: Treat missing fields (if #values < #keys) as null.\n'
   ),
   func: dsv({}),
   dsv
