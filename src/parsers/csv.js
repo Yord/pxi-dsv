@@ -15,16 +15,15 @@ module.exports = {
     const fixedLength = !(noPfixedLength || noFixedLength || F || false)
 
     return dsv.dsv({
-      delimiter:       ',',
-      quote:           '"',
-      escape:          '"',
-      header:          '[]',
-      fixedLength:     true
+      delimiter:   ',',
+      quote:       '"',
+      escape:      '"',
+      header:      '[]'
     })({
       ...argv,
-      pfixedLength:    fixedLength,
-      fixedLength:     fixedLength,
-      F:               fixedLength
+      pfixedLength: fixedLength,
+      fixedLength:  fixedLength,
+      F:            fixedLength
     })
   }
 }
