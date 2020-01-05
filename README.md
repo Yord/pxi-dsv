@@ -34,6 +34,18 @@ module.exports = {
 
 For a much more detailed description, see the [`.pfrc` module documentation][pf-pfrc-module] in the [`pf` repository][pf].
 
+## Extensions
+
+This plugin comes with the following `pf` extensions:
+
+|                  | Description                                                                                                                                                       |
+|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `dsv` parser     | Parses delimiter-separated values files. The delimiter, quote, and escape characters, as well as several other options make it very flexible.                     |
+| `csv` parser     | Parses comma-separated values files. Follows RFC4180 for the most part. Uses `dsv` internally and accepts the same options.                                       |
+| `tsv` parser     | Parses tab-separated values files. Useful for processing tabular database and spreadsheet data. Uses `dsv` internally and accepts the same options.               |
+| `ssv` parser     | Parses space-separated values files. Useful for processing command line output from `ls`, `ps`, and the like. Uses `dsv` internally and accepts the same options. |
+| `csv` marshaller | Serializes JSON into CSV format.                                                                                                                                   |
+
 ## Reporting Issues
 
 Please report issues [at the `pf` repository][issues]!

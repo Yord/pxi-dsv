@@ -33,8 +33,8 @@ test('parses a dsv file without provided header', () => {
                   fixedLength,
                   trimWhitespaces: false,
                   skipEmptyValues: false,
-                  missingIsNull:   false,
-                  emptyIsNull:     false,
+                  missingAsNull:   false,
+                  emptyAsNull:     false,
                   skipNull:        false
                 }
               }
@@ -97,8 +97,8 @@ test('parses a dsv file with provided header', () => {
                     fixedLength,
                     trimWhitespaces: false,
                     skipEmptyValues: false,
-                    missingIsNull:   false,
-                    emptyIsNull:     false,
+                    missingAsNull:   false,
+                    emptyAsNull:     false,
                     skipNull:        false
                   }
                 }
@@ -157,8 +157,8 @@ test('parses a dsv file with provided header and skipHeader', () => {
                     fixedLength,
                     trimWhitespaces: false,
                     skipEmptyValues: false,
-                    missingIsNull:   false,
-                    emptyIsNull:     false,
+                    missingAsNull:   false,
+                    emptyAsNull:     false,
                     skipNull:        false
                   }
                 }
@@ -211,8 +211,8 @@ test('parses a dsv file without provided header and skipHeader', () => {
                   fixedLength,
                   trimWhitespaces: false,
                   skipEmptyValues: false,
-                  missingIsNull:   false,
-                  emptyIsNull:     false,
+                  missingAsNull:   false,
+                  emptyAsNull:     false,
                   skipNull:        false
                 }
               }
@@ -278,8 +278,8 @@ test('parses a dsv file with variable values lengths and the fixed length option
                   fixedLength:     true,
                   trimWhitespaces: false,
                   skipEmptyValues: false,
-                  missingIsNull:   false,
-                  emptyIsNull:     false,
+                  missingAsNull:   false,
+                  emptyAsNull:     false,
                   skipNull:        false
                 }
               }
@@ -351,8 +351,8 @@ test('parses a dsv file with variable values lengths and the fixed length option
                     fixedLength:     true,
                     trimWhitespaces: false,
                     skipEmptyValues: false,
-                    missingIsNull:   false,
-                    emptyIsNull:     false,
+                    missingAsNull:   false,
+                    emptyAsNull:     false,
                     skipNull:        false
                   }
                 }
@@ -428,8 +428,8 @@ test('parses a dsv file with variable values lengths and the fixed length option
                     fixedLength:     true,
                     trimWhitespaces: false,
                     skipEmptyValues: false,
-                    missingIsNull:   false,
-                    emptyIsNull:     false,
+                    missingAsNull:   false,
+                    emptyAsNull:     false,
                     skipNull:        false
                   }
                 }
@@ -490,8 +490,8 @@ test('parses a dsv file and trim whitespaces', () => {
                     fixedLength,
                     trimWhitespaces: true,
                     skipEmptyValues: false,
-                    missingIsNull:   false,
-                    emptyIsNull:     false,
+                    missingAsNull:   false,
+                    emptyAsNull:     false,
                     skipNull:        false
                   }
                 }
@@ -544,8 +544,8 @@ test('parses a dsv file and skip empty values', () => {
                   fixedLength,
                   trimWhitespaces: false,
                   skipEmptyValues: true,
-                  missingIsNull:   false,
-                  emptyIsNull:     false,
+                  missingAsNull:   false,
+                  emptyAsNull:     false,
                   skipNull:        false
                 }
               }
@@ -619,8 +619,8 @@ test('parses a dsv file and convert empty values to nulls', () => {
                     fixedLength,
                     trimWhitespaces: false,
                     skipEmptyValues: false,
-                    missingIsNull:   false,
-                    emptyIsNull:     true,
+                    missingAsNull:   false,
+                    emptyAsNull:     true,
                     skipNull:        false
                   }
                 }
@@ -694,8 +694,8 @@ test('parses a dsv file and convert missing values (if #keys > #values) to nulls
                   fixedLength:     false,
                   trimWhitespaces: false,
                   skipEmptyValues: false,
-                  missingIsNull:   true,
-                  emptyIsNull:     false,
+                  missingAsNull:   true,
+                  emptyAsNull:     false,
                   skipNull:        false
                 }
               }
@@ -754,8 +754,8 @@ test('parses a dsv file and skip null values', () => {
                   fixedLength:     false,
                   trimWhitespaces: false,
                   skipEmptyValues: false,
-                  missingIsNull:   false,
-                  emptyIsNull:     false,
+                  missingAsNull:   false,
+                  emptyAsNull:     false,
                   skipNull:        true
                 }
               }
@@ -768,6 +768,150 @@ test('parses a dsv file and skip null values', () => {
   
   assert(
     property(lines, jsonsTokensDefaultsErr, (lines, {jsons, tokens, defaults, err}) =>
+      expect(
+        parserFactory(defaults)(argv)(tokens, lines)
+      ).toStrictEqual(
+        {err, jsons}
+      )
+    )
+  )
+})
+
+test('parses a dsv file with missing options and verbose 0', () => {
+  const argv                = {verbose: 0}
+
+  const err                 = [
+    {msg: 'Please provide pdelimiter, delimiter or D option'},
+    {msg: 'Please provide pquote, quote or Q option'},
+    {msg: 'Please provide pescape, escape or C option'},
+    {msg: 'Please provide pheader, header or H option'}
+  ]
+
+  const lines               = anything()
+
+  const jsonsTokensDefaults = (
+    boolean().chain(fixedLength =>
+      unicodeStringJsonObjectListFixedLength([]).map(jsons => {
+        const tokens = (
+          [Object.keys(jsons[0]).join(',')]
+          .concat(jsons.map(json => Object.values(json).join(',')))
+        )
+
+        return {
+          jsons: [],
+          tokens,
+          defaults: {
+            skipHeader:      false,
+            fixedLength,
+            trimWhitespaces: false,
+            skipEmptyValues: false,
+            missingAsNull:   false,
+            emptyAsNull:     false,
+            skipNull:        false
+          }
+        }
+      })
+    )
+  )
+  
+  assert(
+    property(lines, jsonsTokensDefaults, (lines, {jsons, tokens, defaults}) =>
+      expect(
+        parserFactory(defaults)(argv)(tokens, lines)
+      ).toStrictEqual(
+        {err, jsons}
+      )
+    )
+  )
+})
+
+test('parses a dsv file with missing options and verbose 1', () => {
+  const argv                = {verbose: 1}
+
+  const err                 = [
+    {msg: 'Please provide pdelimiter, delimiter or D option', line: -1},
+    {msg: 'Please provide pquote, quote or Q option',         line: -1},
+    {msg: 'Please provide pescape, escape or C option',       line: -1},
+    {msg: 'Please provide pheader, header or H option',       line: -1}
+  ]
+
+  const lines               = anything()
+
+  const jsonsTokensDefaults = (
+    boolean().chain(fixedLength =>
+      unicodeStringJsonObjectListFixedLength([]).map(jsons => {
+        const tokens = (
+          [Object.keys(jsons[0]).join(',')]
+          .concat(jsons.map(json => Object.values(json).join(',')))
+        )
+
+        return {
+          jsons: [],
+          tokens,
+          defaults: {
+            skipHeader:      false,
+            fixedLength,
+            trimWhitespaces: false,
+            skipEmptyValues: false,
+            missingAsNull:   false,
+            emptyAsNull:     false,
+            skipNull:        false
+          }
+        }
+      })
+    )
+  )
+  
+  assert(
+    property(lines, jsonsTokensDefaults, (lines, {jsons, tokens, defaults}) =>
+      expect(
+        parserFactory(defaults)(argv)(tokens, lines)
+      ).toStrictEqual(
+        {err, jsons}
+      )
+    )
+  )
+})
+
+test('parses a dsv file without provided delimiter and verbose 2', () => {
+  const argv                = {verbose: 2}
+
+  const err                 = [
+    {msg: 'Please provide pdelimiter, delimiter or D option', line: -1, info: JSON.stringify(argv)},
+    {msg: 'Please provide pquote, quote or Q option',         line: -1, info: JSON.stringify(argv)},
+    {msg: 'Please provide pescape, escape or C option',       line: -1, info: JSON.stringify(argv)},
+    {msg: 'Please provide pheader, header or H option',       line: -1, info: JSON.stringify(argv)}
+  ]
+
+  const lines               = anything()
+
+  const jsonsTokensDefaults = (
+    boolean().chain(fixedLength =>
+      unicodeStringJsonObjectListFixedLength([]).map(jsons => {
+        const tokens = (
+          [Object.keys(jsons[0]).join(',')]
+          .concat(jsons.map(json => Object.values(json).join(',')))
+        )
+
+        return {
+          jsons: [],
+          tokens,
+          defaults: {
+            skipHeader:      false,
+            fixedLength,
+            trimWhitespaces: false,
+            skipEmptyValues: false,
+            missingAsNull:   false,
+            emptyAsNull:     false,
+            skipNull:        false
+          }
+        }
+      })
+    )
+  )
+  
+  assert(
+    property(lines, jsonsTokensDefaults, (lines, {jsons, tokens, defaults}) =>
       expect(
         parserFactory(defaults)(argv)(tokens, lines)
       ).toStrictEqual(

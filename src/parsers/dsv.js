@@ -1,18 +1,18 @@
 module.exports = {
   name: 'dsv',
   desc: (
-    'is a delimiter separated values parser:\n\n' +
+    'is a delimiter-separated values parser:\n\n' +
     '--pdelimiter, --delimiter, -D [char]\nDelimiter used to separate values.\n\n' +
     '--pquote, --quote, -Q [char]\nCharacter used to quote strings.\n\n' +
     '--pescape, --escape, -C [char]\nCharacter used to escape quote in strings.\n\n' +
     '--pheader, --header, -H [string]\nProvide a custom header as a JSON array string.\n\n' +
-    '--pskip-header, --skip-header, -S [boolean]\nDo not interpret first line as header\n\n' +
-    '--pfixed-length, --fixed-length, -F [boolean]\nControls, whether each line has the same number of values. Ignores all deviating lines while reporting errors.\n\n' +
-    '--pskip-empty-values, --skip-empty-values, -E [boolean]\nSkip values that are the empty String.\n\n' +
-    '--ptrim-whitespaces, --trim-whitespaces, -W [boolean]\nTrim whitespaces around values.\n\n' +
-    '--pempty-is-null, --empty-is-null, -I [boolean]\nTreat empty fields as null.\n\n' +
-    '--pskip-null, --skip-null, -N [boolean]\nSkip values that are null.\n\n' +
-    '--pmissing-is-null, --missing-is-null, -M [boolean]\nTreat missing fields (if #values < #keys) as null.\n'
+    '--pskip-header, --skip-header, -S [boolean]\nDo not interpret first line as header.\n\n' +
+    '--pfixed-length, --fixed-length, -F [boolean]\nPost-processing #1: Controls, whether each line has the same number of values. Ignores all deviating lines while reporting errors.\n\n' +
+    '--pskip-empty-values, --skip-empty-values, -E [boolean]\nPost-processing #2: Skip values that are empty strings.\n\n' +
+    '--ptrim-whitespaces, --trim-whitespaces, -W [boolean]\nPost-processing #3: Trim whitespaces around values.\n\n' +
+    '--pempty-as-null, --empty-as-null, -I [boolean]\nPost-processing #4: Treat empty fields as null.\n\n' +
+    '--pskip-null, --skip-null, -N [boolean]\nPost-processing #5: Skip values that are null.\n\n' +
+    '--pmissing-as-null, --missing-as-null, -M [boolean]\nPost-processing #6: Treat missing fields (if #values < #keys) as null.\n'
   ),
   func: dsv({}),
   dsv
@@ -30,9 +30,9 @@ function dsv (defaults) {
       pfixedLength,     fixedLength,     F,
       pskipEmptyValues, skipEmptyValues, E,
       ptrimWhitespaces, trimWhitespaces, W,
-      pemptyIsNull,     emptyIsNull,     I,
+      pemptyAsNull,     emptyAsNull,     I,
       pskipNull,        skipNull,        N,
-      pmissingIsNull,   missingIsNull,   M
+      pmissingAsNull,   missingAsNull,   M
     } = argv
 
     const _delimiter       = pdelimiter       || delimiter       || D || defaults.delimiter
@@ -43,9 +43,9 @@ function dsv (defaults) {
     const _fixedLength     = pfixedLength     || fixedLength     || F || defaults.fixedLength     || false
     const _skipEmptyValues = pskipEmptyValues || skipEmptyValues || E || defaults.skipEmptyValues || false
     const _trimWhitespaces = ptrimWhitespaces || trimWhitespaces || W || defaults.trimWhitespaces || false
-    const _emptyIsNull     = pemptyIsNull     || emptyIsNull     || I || defaults.emptyIsNull     || false
+    const _emptyAsNull     = pemptyAsNull     || emptyAsNull     || I || defaults.emptyAsNull     || false
     const _skipNull        = pskipNull        || skipNull        || N || defaults.skipNull        || false
-    const _missingIsNull   = pmissingIsNull   || missingIsNull   || M || defaults.missingIsNull   || false
+    const _missingAsNull   = pmissingAsNull   || missingAsNull   || M || defaults.missingAsNull   || false
   
     const missingOptions = [
       handleMissingOption(_delimiter, 'pdelimiter, delimiter or D', argv),
@@ -77,9 +77,9 @@ function dsv (defaults) {
     if (_fixedLength)     postProcessingFs.push(controlFixedLength)
     if (_skipEmptyValues) postProcessingFs.push(removeEmptyValues)
     if (_trimWhitespaces) postProcessingFs.push(removeWhitespaces(['\u0020', '\u00A0', '\u2000', '\u2001', '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007', '\u2008', '\u2009', '\u200A', '\u2028', '\u205F', '\u3000']))
-    if (_emptyIsNull)     postProcessingFs.push(emptyToNull)
+    if (_emptyAsNull)     postProcessingFs.push(emptyToNull)
     if (_skipNull)        postProcessingFs.push(removeNulls)
-    if (_missingIsNull)   postProcessingFs.push(missingToNull)
+    if (_missingAsNull)   postProcessingFs.push(missingToNull)
 
     const postProcessingF = (values, line) => {
       let err     = []
