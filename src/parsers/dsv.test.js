@@ -442,6 +442,67 @@ test('parses a dsv file with variable values lengths and the fixed length option
   )
 })
 
+test('parses a dsv file and trim whitespaces', () => {
+  const err                 = []
+
+  const argv                = {verbose: 0}
+  const lines               = anything()
+
+  const jsonsTokensDefaults = (
+    oneof(...delimiters).chain(delimiter =>
+      oneof(...quoteOrEscape).chain(quote =>
+        oneof(...quoteOrEscape).chain(escape =>
+          boolean().chain(fixedLength =>
+            unicodeStringJsonObjectListFixedLength([delimiter, quote, escape]).chain(jsons =>
+              whitespace().map(ws => {
+                const _jsons = jsons.map(json => {
+                  const r = new RegExp(['\u0020', '\u00A0', '\u2000', '\u2001', '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007', '\u2008', '\u2009', '\u200A', '\u2028', '\u205F', '\u3000'].join('|'), 'g')
+                  return Object.keys(json).reduce(
+                    (acc, key) => ({...acc, [key.replace(r, '')]: json[key].replace(r, '')}),
+                    {}
+                  )
+                })
+
+                const tokens = (
+                  [Object.keys(_jsons[0]).map(key => ws + key + ws).join(delimiter)]
+                  .concat(_jsons.map(json => Object.values(json).map(value => ws + value + ws).join(delimiter)))
+                )
+
+                return {
+                  jsons: _jsons,
+                  tokens,
+                  defaults: {
+                    delimiter,
+                    quote,
+                    escape,
+                    header:          '[]',
+                    skipHeader:      false,
+                    fixedLength,
+                    trimWhitespaces: true,
+                    skipEmptyValues: false,
+                    missingIsNull:   false,
+                    emptyIsNull:     false
+                  }
+                }
+              })
+            )
+          )
+        )
+      )
+    )
+  )
+  
+  assert(
+    property(lines, jsonsTokensDefaults, (lines, {jsons, tokens, defaults}) =>
+      expect(
+        parserFactory(defaults)(argv)(tokens, lines)
+      ).toStrictEqual(
+        {err, jsons}
+      )
+    )
+  )
+})
+
 function unicodeStringJsonObjectListFixedLength (blacklist) {
   return integer(1, 20).chain(len =>
     array(base64(), len, len).chain(keys => {
@@ -463,28 +524,12 @@ function unicodeStringJsonObjectListFixedLength (blacklist) {
   )
 }
 
-/*
-function unicodeStringJsonObjectList (blacklist) {
-  return integer(1, 20).chain(len =>
-    array(base64(), len, len).chain(keys => {
-      const _keys = keys.map(skipChars(blacklist))
-      
-      return array(array(unicodeString(1, 20), 1, len), 1, 20).map(valuesList =>
-        valuesList
-        .map(values => {
-          const _values = values.map(skipChars(blacklist))
-          
-          return (
-            _values
-            .map((value, i) => ({[_keys[i]]: value}))
-            .reduce((acc, json) => Object.assign(acc, json), {})
-          )
-        })
-      )
-    })
+function whitespace () {
+  return oneof(
+    ...['\u0020', '\u00A0', '\u2000', '\u2001', '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007', '\u2008', '\u2009', '\u200A', '\u2028', '\u205F', '\u3000']
+    .map(constant)
   )
 }
-*/
 
 function skipChars (blacklist) {
   return string => {
