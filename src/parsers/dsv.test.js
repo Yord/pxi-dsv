@@ -575,54 +575,57 @@ test('parses a dsv file and convert empty values to nulls', () => {
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
-          unicodeStringJsonObjectListFixedLength([delimiter, quote, escape], 2).chain(jsons => 
-            integer(0, jsons.length - 1).map(noOfNulls => {
-              const err = []
+          boolean().chain(fixedLength =>
+            unicodeStringJsonObjectListFixedLength([delimiter, quote, escape], 2).chain(jsons => 
+              integer(0, jsons.length - 1).map(noOfNulls => {
+                const err = []
 
-              const _jsons = noOfNulls === 0 ? (
-                jsons
-              ) : (
-                jsons
-                .slice(0, noOfNulls)
-                .map(json =>
-                  Object.keys(json)
-                  .reduce((acc, key) => ({...acc, [key]: null}), {})
+                const _jsons = noOfNulls === 0 ? (
+                  jsons
+                ) : (
+                  jsons
+                  .slice(0, noOfNulls)
+                  .map(json =>
+                    Object.keys(json)
+                    .reduce((acc, key) => ({...acc, [key]: null}), {})
+                  )
+                  .concat(jsons.slice(noOfNulls))
                 )
-                .concat(jsons.slice(noOfNulls))
-              )
 
-              const tokens = noOfNulls === 0 ? (
-                [Object.keys(_jsons[0]).join(delimiter)]
-                .concat(_jsons.map(json => Object.values(json).join(delimiter)))
-              ) : (
-                [Object.keys(_jsons[0]).join(delimiter)]
-                .concat(
-                  _jsons.slice(0, noOfNulls).map(json => Object.values(json).map(() => '').join(delimiter))
+                const tokens = noOfNulls === 0 ? (
+                  [Object.keys(_jsons[0]).join(delimiter)]
+                  .concat(_jsons.map(json => Object.values(json).join(delimiter)))
+                ) : (
+                  [Object.keys(_jsons[0]).join(delimiter)]
+                  .concat(
+                    _jsons.slice(0, noOfNulls).map(json => Object.values(json).map(() => '').join(delimiter))
+                  )
+                  .concat(
+                    _jsons.slice(noOfNulls).map(json => Object.values(json).join(delimiter))
+                  )
                 )
-                .concat(
-                  _jsons.slice(noOfNulls).map(json => Object.values(json).join(delimiter))
-                )
-              )
-              
-              return {
-                noOfNulls,
-                err,
-                jsons: _jsons,
-                tokens,
-                defaults: {
-                  delimiter,
-                  quote,
-                  escape,
-                  header:          '[]',
-                  skipHeader:      false,
-                  fixedLength:     true,
-                  trimWhitespaces: false,
-                  skipEmptyValues: false,
-                  missingIsNull:   false,
-                  emptyIsNull:     true
+                
+                return {
+                  noOfNulls,
+                  err,
+                  jsons: _jsons,
+                  tokens,
+                  defaults: {
+                    delimiter,
+                    quote,
+                    escape,
+                    header:          '[]',
+                    skipHeader:      false,
+                    fixedLength,
+                    trimWhitespaces: false,
+                    skipEmptyValues: false,
+                    missingIsNull:   false,
+                    emptyIsNull:     true,
+                    skipNull:        false
+                  }
                 }
-              }
-            })
+              })
+            )
           )
         )
       )
