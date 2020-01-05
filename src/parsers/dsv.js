@@ -145,6 +145,8 @@ function dsv (defaults) {
           }
         }
 
+        if (token === '') values.push(token)
+
         if (keysLength === 0 && !returnTypeObject) {
           keysLength = values.length
         }
@@ -208,11 +210,13 @@ function dsv (defaults) {
       }
     }
     
-    // NOT YET IMPLEMENTED
-    function removeEmptyValues (values, lineNo) {
-      const err = []
-  
-      return {err, values}
+    function removeEmptyValues (values) {
+      const values2 = []
+      for (let i = 0; i < values.length; i++) {
+        const value = values[i]
+        if (value !== '') values2.push(value)
+      }
+      return {err: [], values: values2}
     }
     
     // NOT YET IMPLEMENTED
