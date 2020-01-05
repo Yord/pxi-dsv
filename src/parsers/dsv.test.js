@@ -873,6 +873,54 @@ test('parses a dsv file with missing options and verbose 1', () => {
   )
 })
 
+test('parses a dsv file without provided delimiter and verbose 2', () => {
+  const argv                = {verbose: 2}
+
+  const err                 = [
+    {msg: 'Please provide pdelimiter, delimiter or D option', line: -1, info: JSON.stringify(argv)},
+    {msg: 'Please provide pquote, quote or Q option',         line: -1, info: JSON.stringify(argv)},
+    {msg: 'Please provide pescape, escape or C option',       line: -1, info: JSON.stringify(argv)},
+    {msg: 'Please provide pheader, header or H option',       line: -1, info: JSON.stringify(argv)}
+  ]
+
+  const lines               = anything()
+
+  const jsonsTokensDefaults = (
+    boolean().chain(fixedLength =>
+      unicodeStringJsonObjectListFixedLength([]).map(jsons => {
+        const tokens = (
+          [Object.keys(jsons[0]).join(',')]
+          .concat(jsons.map(json => Object.values(json).join(',')))
+        )
+
+        return {
+          jsons: [],
+          tokens,
+          defaults: {
+            skipHeader:      false,
+            fixedLength,
+            trimWhitespaces: false,
+            skipEmptyValues: false,
+            missingAsNull:   false,
+            emptyAsNull:     false,
+            skipNull:        false
+          }
+        }
+      })
+    )
+  )
+  
+  assert(
+    property(lines, jsonsTokensDefaults, (lines, {jsons, tokens, defaults}) =>
+      expect(
+        parserFactory(defaults)(argv)(tokens, lines)
+      ).toStrictEqual(
+        {err, jsons}
+      )
+    )
+  )
+})
+
 function unicodeStringJsonObjectListFixedLength (blacklist, minLen = 1) {
   return integer(minLen, 20).chain(len =>
     array(base64(), len, len).chain(keys => {
