@@ -34,7 +34,8 @@ test('parses a dsv file without provided header', () => {
                   trimWhitespaces: false,
                   skipEmptyValues: false,
                   missingIsNull:   false,
-                  emptyIsNull:     false
+                  emptyIsNull:     false,
+                  skipNull:        false
                 }
               }
             })
@@ -97,7 +98,8 @@ test('parses a dsv file with provided header', () => {
                     trimWhitespaces: false,
                     skipEmptyValues: false,
                     missingIsNull:   false,
-                    emptyIsNull:     false
+                    emptyIsNull:     false,
+                    skipNull:        false
                   }
                 }
               })
@@ -156,7 +158,8 @@ test('parses a dsv file with provided header and skipHeader', () => {
                     trimWhitespaces: false,
                     skipEmptyValues: false,
                     missingIsNull:   false,
-                    emptyIsNull:     false
+                    emptyIsNull:     false,
+                    skipNull:        false
                   }
                 }
               })
@@ -209,7 +212,8 @@ test('parses a dsv file without provided header and skipHeader', () => {
                   trimWhitespaces: false,
                   skipEmptyValues: false,
                   missingIsNull:   false,
-                  emptyIsNull:     false
+                  emptyIsNull:     false,
+                  skipNull:        false
                 }
               }
             })
@@ -275,7 +279,8 @@ test('parses a dsv file with variable values lengths and the fixed length option
                   trimWhitespaces: false,
                   skipEmptyValues: false,
                   missingIsNull:   false,
-                  emptyIsNull:     false
+                  emptyIsNull:     false,
+                  skipNull:        false
                 }
               }
             })
@@ -347,7 +352,8 @@ test('parses a dsv file with variable values lengths and the fixed length option
                     trimWhitespaces: false,
                     skipEmptyValues: false,
                     missingIsNull:   false,
-                    emptyIsNull:     false
+                    emptyIsNull:     false,
+                    skipNull:        false
                   }
                 }
               })
@@ -423,7 +429,8 @@ test('parses a dsv file with variable values lengths and the fixed length option
                     trimWhitespaces: false,
                     skipEmptyValues: false,
                     missingIsNull:   false,
-                    emptyIsNull:     false
+                    emptyIsNull:     false,
+                    skipNull:        false
                   }
                 }
               })
@@ -484,7 +491,8 @@ test('parses a dsv file and trim whitespaces', () => {
                     trimWhitespaces: true,
                     skipEmptyValues: false,
                     missingIsNull:   false,
-                    emptyIsNull:     false
+                    emptyIsNull:     false,
+                    skipNull:        false
                   }
                 }
               })
@@ -537,7 +545,8 @@ test('parses a dsv file and skip empty values', () => {
                   trimWhitespaces: false,
                   skipEmptyValues: true,
                   missingIsNull:   false,
-                  emptyIsNull:     false
+                  emptyIsNull:     false,
+                  skipNull:        false
                 }
               }
             })
