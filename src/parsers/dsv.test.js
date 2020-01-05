@@ -34,7 +34,8 @@ test('parses a dsv file without provided header', () => {
                   trimWhitespaces: false,
                   skipEmptyValues: false,
                   missingIsNull:   false,
-                  emptyIsNull:     false
+                  emptyIsNull:     false,
+                  skipNull:        false
                 }
               }
             })
@@ -97,7 +98,8 @@ test('parses a dsv file with provided header', () => {
                     trimWhitespaces: false,
                     skipEmptyValues: false,
                     missingIsNull:   false,
-                    emptyIsNull:     false
+                    emptyIsNull:     false,
+                    skipNull:        false
                   }
                 }
               })
@@ -156,7 +158,8 @@ test('parses a dsv file with provided header and skipHeader', () => {
                     trimWhitespaces: false,
                     skipEmptyValues: false,
                     missingIsNull:   false,
-                    emptyIsNull:     false
+                    emptyIsNull:     false,
+                    skipNull:        false
                   }
                 }
               })
@@ -209,7 +212,8 @@ test('parses a dsv file without provided header and skipHeader', () => {
                   trimWhitespaces: false,
                   skipEmptyValues: false,
                   missingIsNull:   false,
-                  emptyIsNull:     false
+                  emptyIsNull:     false,
+                  skipNull:        false
                 }
               }
             })
@@ -275,7 +279,8 @@ test('parses a dsv file with variable values lengths and the fixed length option
                   trimWhitespaces: false,
                   skipEmptyValues: false,
                   missingIsNull:   false,
-                  emptyIsNull:     false
+                  emptyIsNull:     false,
+                  skipNull:        false
                 }
               }
             })
@@ -347,7 +352,8 @@ test('parses a dsv file with variable values lengths and the fixed length option
                     trimWhitespaces: false,
                     skipEmptyValues: false,
                     missingIsNull:   false,
-                    emptyIsNull:     false
+                    emptyIsNull:     false,
+                    skipNull:        false
                   }
                 }
               })
@@ -423,7 +429,8 @@ test('parses a dsv file with variable values lengths and the fixed length option
                     trimWhitespaces: false,
                     skipEmptyValues: false,
                     missingIsNull:   false,
-                    emptyIsNull:     false
+                    emptyIsNull:     false,
+                    skipNull:        false
                   }
                 }
               })
@@ -484,7 +491,8 @@ test('parses a dsv file and trim whitespaces', () => {
                     trimWhitespaces: true,
                     skipEmptyValues: false,
                     missingIsNull:   false,
-                    emptyIsNull:     false
+                    emptyIsNull:     false,
+                    skipNull:        false
                   }
                 }
               })
@@ -537,7 +545,8 @@ test('parses a dsv file and skip empty values', () => {
                   trimWhitespaces: false,
                   skipEmptyValues: true,
                   missingIsNull:   false,
-                  emptyIsNull:     false
+                  emptyIsNull:     false,
+                  skipNull:        false
                 }
               }
             })
@@ -566,6 +575,82 @@ test('parses a dsv file and convert empty values to nulls', () => {
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
+          boolean().chain(fixedLength =>
+            unicodeStringJsonObjectListFixedLength([delimiter, quote, escape], 2).chain(jsons => 
+              integer(0, jsons.length - 1).map(noOfNulls => {
+                const err = []
+
+                const _jsons = noOfNulls === 0 ? (
+                  jsons
+                ) : (
+                  jsons
+                  .slice(0, noOfNulls)
+                  .map(json =>
+                    Object.keys(json)
+                    .reduce((acc, key) => ({...acc, [key]: null}), {})
+                  )
+                  .concat(jsons.slice(noOfNulls))
+                )
+
+                const tokens = noOfNulls === 0 ? (
+                  [Object.keys(_jsons[0]).join(delimiter)]
+                  .concat(_jsons.map(json => Object.values(json).join(delimiter)))
+                ) : (
+                  [Object.keys(_jsons[0]).join(delimiter)]
+                  .concat(
+                    _jsons.slice(0, noOfNulls).map(json => Object.values(json).map(() => '').join(delimiter))
+                  )
+                  .concat(
+                    _jsons.slice(noOfNulls).map(json => Object.values(json).join(delimiter))
+                  )
+                )
+                
+                return {
+                  noOfNulls,
+                  err,
+                  jsons: _jsons,
+                  tokens,
+                  defaults: {
+                    delimiter,
+                    quote,
+                    escape,
+                    header:          '[]',
+                    skipHeader:      false,
+                    fixedLength,
+                    trimWhitespaces: false,
+                    skipEmptyValues: false,
+                    missingIsNull:   false,
+                    emptyIsNull:     true,
+                    skipNull:        false
+                  }
+                }
+              })
+            )
+          )
+        )
+      )
+    )
+  )
+  
+  assert(
+    property(lines, jsonsTokensDefaultsErr, (lines, {jsons, tokens, defaults, err}) =>
+      expect(
+        parserFactory(defaults)(argv)(tokens, lines)
+      ).toStrictEqual(
+        {err, jsons}
+      )
+    )
+  )
+})
+
+test('parses a dsv file and convert missing values (if #keys > #values) to nulls', () => {
+  const argv  = {verbose: 0}
+  const lines = anything()
+
+  const jsonsTokensDefaultsErr = (
+    oneof(...delimiters).chain(delimiter =>
+      oneof(...quoteOrEscape).chain(quote =>
+        oneof(...quoteOrEscape).chain(escape =>
           unicodeStringJsonObjectListFixedLength([delimiter, quote, escape], 2).chain(jsons => 
             integer(0, jsons.length - 1).map(noOfNulls => {
               const err = []
@@ -577,7 +662,7 @@ test('parses a dsv file and convert empty values to nulls', () => {
                 .slice(0, noOfNulls)
                 .map(json =>
                   Object.keys(json)
-                  .reduce((acc, key) => ({...acc, [key]: null}), {})
+                  .reduce((acc, key, i) => ({...acc, [key]: i === 0 ? '' : null}), {})
                 )
                 .concat(jsons.slice(noOfNulls))
               )
@@ -588,7 +673,7 @@ test('parses a dsv file and convert empty values to nulls', () => {
               ) : (
                 [Object.keys(_jsons[0]).join(delimiter)]
                 .concat(
-                  _jsons.slice(0, noOfNulls).map(json => Object.values(json).map(() => '').join(delimiter))
+                  noOfNulls > 0 ? _jsons.slice(0, noOfNulls).map(() => '') : []
                 )
                 .concat(
                   _jsons.slice(noOfNulls).map(json => Object.values(json).join(delimiter))
@@ -606,11 +691,72 @@ test('parses a dsv file and convert empty values to nulls', () => {
                   escape,
                   header:          '[]',
                   skipHeader:      false,
-                  fixedLength:     true,
+                  fixedLength:     false,
+                  trimWhitespaces: false,
+                  skipEmptyValues: false,
+                  missingIsNull:   true,
+                  emptyIsNull:     false,
+                  skipNull:        false
+                }
+              }
+            })
+          )
+        )
+      )
+    )
+  )
+  
+  assert(
+    property(lines, jsonsTokensDefaultsErr, (lines, {jsons, tokens, defaults, err}) =>
+      expect(
+        parserFactory(defaults)(argv)(tokens, lines)
+      ).toStrictEqual(
+        {err, jsons}
+      )
+    )
+  )
+})
+
+test('parses a dsv file and skip null values', () => {
+  const argv  = {verbose: 0}
+  const lines = anything()
+
+  const jsonsTokensDefaultsErr = (
+    oneof(...delimiters).chain(delimiter =>
+      oneof(...quoteOrEscape).chain(quote =>
+        oneof(...quoteOrEscape).chain(escape =>
+          unicodeStringJsonObjectListFixedLength([delimiter, quote, escape], 2).chain(jsons => 
+            integer(0, jsons.length - 1).map(noOfNulls => {
+              const err = []
+
+              const _jsons = jsons.slice(noOfNulls)
+
+              const tokens = noOfNulls === 0 ? (
+                [Object.keys(jsons[0]).join(delimiter)]
+                .concat(jsons.map(json => Object.values(json).join(delimiter)))
+              ) : (
+                [Object.keys(jsons[0]).join(delimiter)]
+                .concat(jsons.slice(0, noOfNulls).map(() => null))
+                .concat(jsons.slice(noOfNulls).map(json => Object.values(json).join(delimiter)))
+              )
+              
+              return {
+                noOfNulls,
+                err,
+                jsons: _jsons,
+                tokens,
+                defaults: {
+                  delimiter,
+                  quote,
+                  escape,
+                  header:          '[]',
+                  skipHeader:      false,
+                  fixedLength:     false,
                   trimWhitespaces: false,
                   skipEmptyValues: false,
                   missingIsNull:   false,
-                  emptyIsNull:     true
+                  emptyIsNull:     false,
+                  skipNull:        true
                 }
               }
             })
