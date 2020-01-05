@@ -11,7 +11,7 @@ module.exports = {
     '--ptrim-whitespaces, --trim-whitespaces, -W [boolean]\nTrim whitespaces around values.\n\n' +
     '--pskip-empty-values, --skip-empty-values, -E [boolean]\nSkip values that are the empty String.\n\n' +
     '--pmissing-is-null, --missing-is-null, -M [boolean]\nTreat missing fields (if #values < #keys) as null.\n\n' +
-    '--pempty-is-null, --empty-is-null, -N [boolean]\nTreat empty fields (not empty String!) as null.\n'
+    '--pempty-is-null, --empty-is-null, -N [boolean]\nTreat empty fields as null.\n'
   ),
   func: dsv({}),
   dsv
@@ -219,11 +219,13 @@ function dsv (defaults) {
       return {err: [], values: values2}
     }
     
-    // NOT YET IMPLEMENTED
-    function emptyToNull (values, lineNo) {
-      const err = []
-  
-      return {err, values}
+    function emptyToNull (values) {
+      const values2 = []
+      for (let i = 0; i < values.length; i++) {
+        const value = values[i]
+        values2.push(value === '' ? null : value)
+      }
+      return {err: [], values: values2}
     }
     
     // NOT YET IMPLEMENTED
