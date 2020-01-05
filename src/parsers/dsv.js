@@ -8,10 +8,11 @@ module.exports = {
     '--pheader, --header, -H [string]\nProvide a custom header as a JSON array string.\n\n' +
     '--pskip-header, --skip-header, -S [boolean]\nDo not interpret first line as header\n\n' +
     '--pfixed-length, --fixed-length, -F [boolean]\nControls, whether each line has the same number of values. Ignores all deviating lines while reporting errors.\n\n' +
-    '--ptrim-whitespaces, --trim-whitespaces, -W [boolean]\nTrim whitespaces around values.\n\n' +
     '--pskip-empty-values, --skip-empty-values, -E [boolean]\nSkip values that are the empty String.\n\n' +
-    '--pmissing-is-null, --missing-is-null, -M [boolean]\nTreat missing fields (if #values < #keys) as null.\n\n' +
-    '--pempty-is-null, --empty-is-null, -N [boolean]\nTreat empty fields as null.\n'
+    '--ptrim-whitespaces, --trim-whitespaces, -W [boolean]\nTrim whitespaces around values.\n\n' +
+    '--pempty-is-null, --empty-is-null, -I [boolean]\nTreat empty fields as null.\n\n' +
+    '--pskip-null, --skip-null, -N [boolean]\nSkip values that are null.\n\n' +
+    '--pmissing-is-null, --missing-is-null, -M [boolean]\nTreat missing fields (if #values < #keys) as null.\n'
   ),
   func: dsv({}),
   dsv
@@ -27,10 +28,11 @@ function dsv (defaults) {
       pheader,          header,          H,
       pskipHeader,      skipHeader,      S,
       pfixedLength,     fixedLength,     F,
-      ptrimWhitespaces, trimWhitespaces, W,
       pskipEmptyValues, skipEmptyValues, E,
-      pmissingIsNull,   missingIsNull,   M,
-      pemptyIsNull,     emptyIsNull,     N
+      ptrimWhitespaces, trimWhitespaces, W,
+      pemptyIsNull,     emptyIsNull,     I,
+      pskipNull,        skipNull,        N,
+      pmissingIsNull,   missingIsNull,   M
     } = argv
 
     const _delimiter       = pdelimiter       || delimiter       || D || defaults.delimiter
@@ -39,10 +41,11 @@ function dsv (defaults) {
     const _header          = pheader          || header          || H || defaults.header
     const _skipHeader      = pskipHeader      || skipHeader      || S || defaults.skipHeader      || false
     const _fixedLength     = pfixedLength     || fixedLength     || F || defaults.fixedLength     || false
-    const _trimWhitespaces = ptrimWhitespaces || trimWhitespaces || W || defaults.trimWhitespaces || false
     const _skipEmptyValues = pskipEmptyValues || skipEmptyValues || E || defaults.skipEmptyValues || false
+    const _trimWhitespaces = ptrimWhitespaces || trimWhitespaces || W || defaults.trimWhitespaces || false
+    const _emptyIsNull     = pemptyIsNull     || emptyIsNull     || I || defaults.emptyIsNull     || false
+    const _skipNull        = pskipNull        || skipNull        || N || defaults.skipNull        || false
     const _missingIsNull   = pmissingIsNull   || missingIsNull   || M || defaults.missingIsNull   || false
-    const _emptyIsNull     = pemptyIsNull     || emptyIsNull     || N || defaults.emptyIsNull     || false
   
     const missingOptions = [
       handleMissingOption(_delimiter, 'pdelimiter, delimiter or D', argv),
@@ -72,9 +75,10 @@ function dsv (defaults) {
 
     const postProcessingFs = []
     if (_fixedLength)     postProcessingFs.push(controlFixedLength)
-    if (_trimWhitespaces) postProcessingFs.push(removeWhitespaces(['\u0020', '\u00A0', '\u2000', '\u2001', '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007', '\u2008', '\u2009', '\u200A', '\u2028', '\u205F', '\u3000']))
     if (_skipEmptyValues) postProcessingFs.push(removeEmptyValues)
+    if (_trimWhitespaces) postProcessingFs.push(removeWhitespaces(['\u0020', '\u00A0', '\u2000', '\u2001', '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007', '\u2008', '\u2009', '\u200A', '\u2028', '\u205F', '\u3000']))
     if (_emptyIsNull)     postProcessingFs.push(emptyToNull)
+    if (_skipNull)        postProcessingFs.push(removeNulls)
     if (_missingIsNull)   postProcessingFs.push(missingToNull)
 
     const postProcessingF = (values, line) => {
@@ -224,6 +228,15 @@ function dsv (defaults) {
       for (let i = 0; i < values.length; i++) {
         const value = values[i]
         values2.push(value === '' ? null : value)
+      }
+      return {err: [], values: values2}
+    }
+
+    function removeNulls (values) {
+      const values2 = []
+      for (let i = 0; i < values.length; i++) {
+        const value = values[i]
+        if (value !== null) values2.push(value)
       }
       return {err: [], values: values2}
     }
