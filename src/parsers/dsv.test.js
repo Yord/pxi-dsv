@@ -506,7 +506,7 @@ test('parses a dsv file and trim whitespaces', () => {
   )
 })
 
-test('parses a dsv file without provided header', () => {
+test('parses a dsv file and skip empty values', () => {
   const err                 = []
 
   const argv                = {verbose: 0}
@@ -549,6 +549,79 @@ test('parses a dsv file without provided header', () => {
   
   assert(
     property(lines, jsonsTokensDefaults, (lines, {jsons, tokens, defaults}) =>
+      expect(
+        parserFactory(defaults)(argv)(tokens, lines)
+      ).toStrictEqual(
+        {err, jsons}
+      )
+    )
+  )
+})
+
+test('parses a dsv file and convert empty values to nulls', () => {
+  const argv  = {verbose: 0}
+  const lines = anything()
+
+  const jsonsTokensDefaultsErr = (
+    oneof(...delimiters).chain(delimiter =>
+      oneof(...quoteOrEscape).chain(quote =>
+        oneof(...quoteOrEscape).chain(escape =>
+          unicodeStringJsonObjectListFixedLength([delimiter, quote, escape], 2).chain(jsons => 
+            integer(0, jsons.length - 1).map(noOfNulls => {
+              const err = []
+
+              const _jsons = noOfNulls === 0 ? (
+                jsons
+              ) : (
+                jsons
+                .slice(0, noOfNulls)
+                .map(json =>
+                  Object.keys(json)
+                  .reduce((acc, key) => ({...acc, [key]: null}), {})
+                )
+                .concat(jsons.slice(noOfNulls))
+              )
+
+              const tokens = noOfNulls === 0 ? (
+                [Object.keys(_jsons[0]).join(delimiter)]
+                .concat(_jsons.map(json => Object.values(json).join(delimiter)))
+              ) : (
+                [Object.keys(_jsons[0]).join(delimiter)]
+                .concat(
+                  _jsons.slice(0, noOfNulls).map(json => Object.values(json).map(() => '').join(delimiter))
+                )
+                .concat(
+                  _jsons.slice(noOfNulls).map(json => Object.values(json).join(delimiter))
+                )
+              )
+              
+              return {
+                noOfNulls,
+                err,
+                jsons: _jsons,
+                tokens,
+                defaults: {
+                  delimiter,
+                  quote,
+                  escape,
+                  header:          '[]',
+                  skipHeader:      false,
+                  fixedLength:     true,
+                  trimWhitespaces: false,
+                  skipEmptyValues: false,
+                  missingIsNull:   false,
+                  emptyIsNull:     true
+                }
+              }
+            })
+          )
+        )
+      )
+    )
+  )
+  
+  assert(
+    property(lines, jsonsTokensDefaultsErr, (lines, {jsons, tokens, defaults, err}) =>
       expect(
         parserFactory(defaults)(argv)(tokens, lines)
       ).toStrictEqual(
