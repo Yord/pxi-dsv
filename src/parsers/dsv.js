@@ -112,7 +112,7 @@ function dsv (defaults) {
         let isEscaped    = false
         let valueFound   = false
 
-        for (let at = 0; at < token.length; at++) {
+        for (let at = 0; at < (token || '').length; at++) {
           const ch  = token.charAt(at)
 
           if (inQuote) {
