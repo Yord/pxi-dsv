@@ -19,7 +19,7 @@ module.exports = {
 }
 
 function dsv (defaults) {
-  return (argv) => {
+  return argv => {
     const {
       verbose,
       pdelimiter,       delimiter,       D,
