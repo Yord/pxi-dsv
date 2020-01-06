@@ -44,7 +44,7 @@ This plugin comes with the following `pf` extensions:
 | `csv` parser     | Parses comma-separated values files. Follows RFC4180 for the most part. Uses `dsv` internally and accepts the same options.                                       |
 | `tsv` parser     | Parses tab-separated values files. Useful for processing tabular database and spreadsheet data. Uses `dsv` internally and accepts the same options.               |
 | `ssv` parser     | Parses space-separated values files. Useful for processing command line output from `ls`, `ps`, and the like. Uses `dsv` internally and accepts the same options. |
-| `csv` marshaller | Serializes JSON into CSV format.                                                                                                                                   |
+| `csv` marshaller | Serializes JSON into CSV format.                                                                                                                                  |
 
 ## Reporting Issues
 
