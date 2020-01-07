@@ -75,6 +75,7 @@ function dsv (defaults) {
 
     const postProcessingFs = []
                           postProcessingFs.push(removeQuotes)
+                          postProcessingFs.push(removeEscapedQuotes)
     if (_fixedLength)     postProcessingFs.push(controlFixedLength)
     if (_skipEmptyValues) postProcessingFs.push(removeEmptyValues)
     if (_trimWhitespaces) postProcessingFs.push(removeWhitespaces(['\u0020', '\u00A0', '\u2000', '\u2001', '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007', '\u2008', '\u2009', '\u200A', '\u2028', '\u205F', '\u3000']))
@@ -198,6 +199,30 @@ function dsv (defaults) {
         } else {
           values2.push(value)
         }
+      }
+      return {err: [], values: values2}
+    }
+
+    function removeEscapedQuotes (values) {
+      const values2 = []
+      for (let i = 0; i < values.length; i++) {
+        const value = values[i]
+        let lastCh  = ''
+        let value2  = ''
+        for (let at = 0; at < value.length; at++) {
+          const ch  = value[at]
+          if (lastCh === '') {
+            lastCh  = ch
+          } else if (lastCh === _escape && ch === _quote) {
+            value2 += ch
+            lastCh  = ''
+          } else {
+            value2 += lastCh
+            lastCh  = ch
+          }
+        }
+        value2 += lastCh
+        values2.push(value2)
       }
       return {err: [], values: values2}
     }
