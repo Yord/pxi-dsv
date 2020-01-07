@@ -14,6 +14,8 @@ See the [`pf` github repository][pf] for more details!
 
 ## Installation
 
+> :ok_hand: `@pfx/dsv` comes preinstalled in `pf`. No installation necessary. If you still want to install it, proceed as described below.
+
 `@pfx/dsv` is installed in `~/.pfrc/` as follows:
 
 ```bash
