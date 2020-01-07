@@ -76,7 +76,7 @@ function dsv (defaults) {
     const postProcessingFs = []
     if (_fixedLength)     postProcessingFs.push(controlFixedLength)
     if (_skipEmptyValues) postProcessingFs.push(removeEmptyValues)
-    if (_trimWhitespaces) postProcessingFs.push(removeWhitespaces(['\u0020', '\u00A0', '\u2000', '\u2001', '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007', '\u2008', '\u2009', '\u200A', '\u2028', '\u205F', '\u3000']))
+    if (_trimWhitespaces) postProcessingFs.push(removeWhitespaces)
     if (_emptyAsNull)     postProcessingFs.push(emptyToNull)
     if (_skipNull)        postProcessingFs.push(removeNulls)
     if (_missingAsNull)   postProcessingFs.push(missingToNull)
@@ -221,7 +221,7 @@ function dsv (defaults) {
           lastCh  = ch
         }
       }
-      value2 += lastCh
+      value2     += lastCh
       return value2
     }
 
@@ -236,22 +236,16 @@ function dsv (defaults) {
       }
     }
     
-    function removeWhitespaces (whitespaces) {
-      return values => {
-        let values2   = []
-        for (let i = 0; i < values.length; i++) {
-          const value = values[i]
-          let value2  = ''
-          for (let at = 0; at < value.length; at++) {
-            const ch  = value[at]
-            if (whitespaces.indexOf(ch) === -1) value2 += ch
-          }
-          values2.push(value2)
-        }
-        return {err: [], values: values2}
+    function removeWhitespaces (values) {
+      let values2    = []
+      for (let i = 0; i < values.length; i++) {
+        const value  = values[i]
+        const value2 = value.replace(/^\s+|\s+$/g, '')
+        values2.push(value2)
       }
+      return {err: [], values: values2}
     }
-    
+
     function removeEmptyValues (values) {
       const values2 = []
       for (let i = 0; i < values.length; i++) {
