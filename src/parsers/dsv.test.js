@@ -1,4 +1,5 @@
-const {anything, array, assert, base64, boolean, constant, integer, oneof, property, unicodeString} = require('fast-check')
+const {anything, array, assert, base64, boolean, constant, integer, oneof, property} = require('fast-check')
+const unicodeStringJsonObjectListFixedLength = require('../shared/unicodeStringJsonObjectListFixedLength')
 const {dsv: parserFactory} = require('./dsv')
 
 const delimiters    = [',', ';', '.', '|', '/', '-', '+', '$', '#', '!'].map(constant)
@@ -872,7 +873,7 @@ test('parses a dsv file with missing options and verbose 1', () => {
   )
 })
 
-test('parses a dsv file without provided delimiter and verbose 2', () => {
+test('parses a dsv file with missing options and verbose 2', () => {
   const argv                = {verbose: 2}
 
   const err                 = [
@@ -1058,41 +1059,9 @@ test('ignores delimiters and escaped quotes in quoted values', () => {
   )
 })
 
-function unicodeStringJsonObjectListFixedLength (blacklist, minLen = 1) {
-  return integer(minLen, 20).chain(len =>
-    array(base64(), len, len).chain(keys => {
-      const _keys = keys.map(skipChars(blacklist))
-      
-      return array(array(unicodeString(1, 20), len, len), minLen, 20).map(valuesList =>
-        valuesList
-        .map(values => {
-          const _values = values.map(skipChars(blacklist))
-          
-          return (
-            _keys
-            .map((key, i) => ({[key + i]: _values[i]}))
-            .reduce((acc, json) => Object.assign(acc, json), {})
-          )
-        })
-      )
-    })
-  )
-}
-
 function whitespace () {
   return oneof(
     ...['\u0009', '\u000a', '\u000b', '\u000c', '\u000d', '\u0020', '\u00a0', '\u1680', '\u2000', '\u2001', '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007', '\u2008', '\u2009', '\u200a', '\u2028', '\u2029', '\u202f', '\u205f', '\u3000', '\ufeff']
     .map(constant)
   )
-}
-
-function skipChars (blacklist) {
-  return string => {
-    let str = ''
-    for (let at = 0; at < string.length; at++) {
-      const ch = string[at]
-      if (blacklist.indexOf(ch) === -1) str += ch
-    }
-    return str || ' '
-  }
 }
