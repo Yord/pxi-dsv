@@ -2,7 +2,7 @@ const {assert, boolean, property} = require('fast-check')
 const unicodeStringJsonObjectListFixedLength = require('../shared/unicodeStringJsonObjectListFixedLength')
 const {dsv: marshallerFactory} = require('./dsv')
 
-test('parses a dsv file with missing options and verbose 0', () => {
+test('marshals a dsv file with missing options and verbose 0', () => {
   const argv                = {verbose: 0}
 
   const err                 = [
@@ -46,7 +46,7 @@ test('parses a dsv file with missing options and verbose 0', () => {
   )
 })
 
-test('parses a dsv file with missing options and verbose 1', () => {
+test('marshals a dsv file with missing options and verbose 1', () => {
   const argv                = {verbose: 1}
 
   const err                 = [
@@ -90,7 +90,7 @@ test('parses a dsv file with missing options and verbose 1', () => {
   )
 })
 
-test('parses a dsv file with missing options and verbose 2', () => {
+test('marshals a dsv file with missing options and verbose 2', () => {
   const argv                = {verbose: 2}
 
   const err                 = [
