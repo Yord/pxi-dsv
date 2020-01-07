@@ -135,15 +135,42 @@ function dsv (defaults) {
 
     function jsonsToRecords (jsons) {
       const records = []
-      // add quotes to values?
-      // escape quotes in values?
+      
+      if (typeof jsons === 'string') {
+        // add quotes to records?
+        // escape quotes in records?
+      } else if (typeof jsons === 'number') {
+        if (Number.isNaN(jsons)) {
 
-      // use _allowListValues when transforming values
-      _allowListValues
+        } else {
 
-      // Could be part of preprocessing
-      // somewhere here: convert each json into a list of strings that is fed into preprocessing
-      //                 the json type is important here (array vs. object vs. others)
+        }
+      } else if (typeof jsons === 'boolean') {
+
+      } else if (typeof jsons === 'undefined') {
+
+      } else if (jsons === null) {
+
+      } else if (Array.isArray(jsons)) {
+        if (_allowListValues) {
+          // in case of string values
+          // add quotes to records?
+          // escape quotes in records?
+        } else {
+
+        }
+      } else if (typeof jsons === 'object') {
+        if (_allowListValues) {
+          // in case of string values
+          // add quotes to records?
+          // escape quotes in records?
+        } else {
+          
+        }
+      } else {
+        // in case it is a Symbol or BigInt
+      }
+
       return {err: [], records}
     }
 
