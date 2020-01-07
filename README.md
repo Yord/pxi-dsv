@@ -48,6 +48,25 @@ This plugin comes with the following `pf` extensions:
 | `ssv` parser     | Parses space-separated values files. Useful for processing command line output from `ls`, `ps`, and the like. Uses `dsv` internally and accepts the same options. |
 | `csv` marshaller | Serializes JSON into CSV format.                                                                                                                                  |
 
+## Known Limitations
+
+This plugin has the following limitations:
+
+1.  The parsers do not cast strings to other data types, like numbers or booleans.
+    This is intentional.
+    Since different use cases need different data types, and some use cases need their integers to be strings,
+    e.g. in case of IDs, there is no way to know for sure when to cast a string to another type.
+    If you need different types, you may cast strings by using functions.
+2.  The `tsv` parser is implemented in terms of the `dsv` parser and thus supports quotes and escaping tabs.
+    Other implementations of `tsv` parsers do not allow tabs in values and have no need of quotes and escapes.
+    This means, the current `tsv` implementation works just fine, but a dedicated implementation should be more performant.
+    A dedicated implementation may come at some time in the future.
+3.  The `csv` parser does not appear to support multi-line values, aka values with line breaks inside quotes.
+    Actually, no `pf` parser could support this feature alone, since it is the lexers' responsibility to chunk data for parsers.
+    Currently there is no dedicated lexer that supports chunking multi-line csv files, but there may be in the future.
+4.  Currently, the plugin only supports marshallers for `csv`.
+    This will change in the upcoming versions.
+
 ## Reporting Issues
 
 Please report issues [in the tracker][issues]!
