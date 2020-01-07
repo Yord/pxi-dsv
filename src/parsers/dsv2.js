@@ -74,8 +74,6 @@ function dsv (defaults) {
     const returnTypeObject = !_skipHeader || keysLength > 0
 
     const postProcessingFs = []
-                          postProcessingFs.push(removeQuotes)
-                          postProcessingFs.push(removeEscapedQuotes)
     if (_fixedLength)     postProcessingFs.push(controlFixedLength)
     if (_skipEmptyValues) postProcessingFs.push(removeEmptyValues)
     if (_trimWhitespaces) postProcessingFs.push(removeWhitespaces(['\u0020', '\u00A0', '\u2000', '\u2001', '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007', '\u2008', '\u2009', '\u200A', '\u2028', '\u205F', '\u3000']))
@@ -109,40 +107,49 @@ function dsv (defaults) {
         let values  = []
         let from    = 0
 
-        let inQuote      = false
-        let mayBeEscaped = false
-        let isEscaped    = false
-        let valueFound   = false
+        let inQuote          = false
+        let mayBeEscaped     = false
+        let isEscaped        = false
+        let valueFound       = false
+        let hasQuotes        = false
+        let hasEscapedQuotes = false
 
         for (let at = 0; at < (token || '').length; at++) {
           const ch  = token.charAt(at)
 
           if (inQuote) {
+                                        hasQuotes        = true
             if (_quote === _escape) {
               if (mayBeEscaped) {
-                                        mayBeEscaped = false
-                if (ch !== _escape)     inQuote      = false
-                if (ch === _delimiter)  valueFound   = true
+                                        mayBeEscaped     = false
+                if (ch === _quote)      hasEscapedQuotes = true
+                else                    inQuote          = false
+                if (ch === _delimiter)  valueFound       = true
               } else {
-                if (ch === _escape)     mayBeEscaped = true
-                else if (ch === _quote) inQuote      = false
+                if (ch === _escape)     mayBeEscaped     = true
+                else if (ch === _quote) inQuote          = false
               }
             } else {
-              if (isEscaped)            isEscaped    = false
-              else {
-                if (ch === _escape)     isEscaped    = true
-                else if (ch === _quote) inQuote      = false
+              if (isEscaped) {
+                                        isEscaped        = false
+                if (ch === _quote)      hasEscapedQuotes = true
+              } else {
+                if (ch === _escape)     isEscaped        = true
+                else if (ch === _quote) inQuote          = false
               }
             }
           } else {
-            if (ch === _quote)          inQuote      = true
-            else if (ch === _delimiter) valueFound   = true
+            if (ch === _quote)          inQuote          = true
+            else if (ch === _delimiter) valueFound       = true
           }
 
           if (valueFound || at === token.length - 1) {
-            const value = token.slice(from, valueFound ? at : at + 1)
-            valueFound  = false
-            from        = at + 1
+            let value  = token.slice(from, valueFound ? at : at + 1)
+            valueFound = false
+            from       = at + 1
+
+            if (hasQuotes)        value = removeQuotes(value)
+            if (hasEscapedQuotes) value = removeEscapedQuotes(value)
 
             values.push(value)
           }
@@ -190,42 +197,32 @@ function dsv (defaults) {
       return {err, jsons}
     }
 
-    function removeQuotes (values) {
-      const values2 = []
-      for (let i = 0; i < values.length; i++) {
-        const value = values[i]
-        const len   = value.length
-        if (len > 0 && value[0] === _quote && value[len - 1] === _quote) {
-          values2.push(value.slice(1, len - 1))
-        } else {
-          values2.push(value)
-        }
+    function removeQuotes (value) {
+      let value2 = value
+      const len  = value.length
+      if (len > 0 && value[0] === _quote && value[len - 1] === _quote) {
+        value2   = value.slice(1, len - 1)
       }
-      return {err: [], values: values2}
+      return value2
     }
 
-    function removeEscapedQuotes (values) {
-      const values2 = []
-      for (let i = 0; i < values.length; i++) {
-        const value = values[i]
-        let lastCh  = ''
-        let value2  = ''
-        for (let at = 0; at < value.length; at++) {
-          const ch  = value[at]
-          if (lastCh === '') {
-            lastCh  = ch
-          } else if (lastCh === _escape && ch === _quote) {
-            value2 += ch
-            lastCh  = ''
-          } else {
-            value2 += lastCh
-            lastCh  = ch
-          }
+    function removeEscapedQuotes (value) {
+      let lastCh  = ''
+      let value2  = ''
+      for (let at = 0; at < value.length; at++) {
+        const ch  = value[at]
+        if (lastCh === '') {
+          lastCh  = ch
+        } else if (lastCh === _escape && ch === _quote) {
+          value2 += ch
+          lastCh  = ''
+        } else {
+          value2 += lastCh
+          lastCh  = ch
         }
-        value2 += lastCh
-        values2.push(value2)
       }
-      return {err: [], values: values2}
+      value2 += lastCh
+      return value2
     }
 
     function controlFixedLength (values, lineNo) {
