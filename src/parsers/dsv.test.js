@@ -466,9 +466,8 @@ test('parses a dsv file and trim whitespaces', () => {
             unicodeStringJsonObjectListFixedLength([delimiter, quote, escape]).chain(jsons =>
               whitespace().map(ws => {
                 const _jsons = jsons.map(json => {
-                  const r = new RegExp(['\u0020', '\u00A0', '\u2000', '\u2001', '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007', '\u2008', '\u2009', '\u200A', '\u2028', '\u205F', '\u3000'].join('|'), 'g')
                   return Object.keys(json).reduce(
-                    (acc, key) => ({...acc, [key.replace(r, '')]: json[key].replace(r, '')}),
+                    (acc, key) => ({...acc, [key.replace(/\s+/g, '')]: json[key].replace(/\s+/g, '')}),
                     {}
                   )
                 })
@@ -1082,7 +1081,7 @@ function unicodeStringJsonObjectListFixedLength (blacklist, minLen = 1) {
 
 function whitespace () {
   return oneof(
-    ...['\u0020', '\u00A0', '\u2000', '\u2001', '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007', '\u2008', '\u2009', '\u200A', '\u2028', '\u205F', '\u3000']
+    ...['\u0009', '\u000a', '\u000b', '\u000c', '\u000d', '\u0020', '\u00a0', '\u1680', '\u2000', '\u2001', '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007', '\u2008', '\u2009', '\u200a', '\u2028', '\u2029', '\u202f', '\u205f', '\u3000', '\ufeff']
     .map(constant)
   )
 }
