@@ -1,3 +1,5 @@
+const handleMissingOption = require('../shared/handleMissingOption')
+
 module.exports = {
   name: 'dsv',
   desc: (
@@ -287,14 +289,4 @@ function dsv (defaults) {
       }
     }
   }
-}
-
-function handleMissingOption (field, options, argv) {
-  if (typeof field === 'undefined') {
-    const msg  = {msg: `Please provide ${options} option`}
-    const line = argv.verbose > 0 ? {line: -1}                   : {}
-    const info = argv.verbose > 1 ? {info: JSON.stringify(argv)} : {}
-    return [Object.assign(msg, line, info)]
-  }
-  return []
 }
