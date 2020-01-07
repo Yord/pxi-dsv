@@ -1,5 +1,5 @@
 const {anything, array, assert, base64, boolean, constant, integer, oneof, property, unicodeString} = require('fast-check')
-const {dsv: parserFactory} = require('./dsv2')
+const {dsv: parserFactory} = require('./dsv')
 
 const delimiters    = [',', ';', '.', '|', '/', '-', '+', '$', '#', '!'].map(constant)
 const quoteOrEscape = ["'", '"', '`', '\\'].map(constant)

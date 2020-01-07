@@ -1,5 +1,5 @@
 module.exports = {
-  name: 'dsv2',
+  name: 'dsv',
   desc: (
     'is a delimiter-separated values parser:\n\n' +
     '--pdelimiter, --delimiter, -D [char]\nDelimiter used to separate values.\n\n' +
