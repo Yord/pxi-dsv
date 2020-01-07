@@ -128,7 +128,8 @@ function dsv (defaults) {
                 else if (ch === _quote) inQuote      = false
               }
             } else {
-              if (!isEscaped) {
+              if (isEscaped)            isEscaped    = false
+              else {
                 if (ch === _escape)     isEscaped    = true
                 else if (ch === _quote) inQuote      = false
               }
