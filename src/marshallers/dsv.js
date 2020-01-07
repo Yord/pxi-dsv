@@ -68,73 +68,73 @@ function dsv (defaults) {
 
     const keys              = JSON.parse(_header)
 
-    // skipHeader | header || addProvidedHeader | keysWritten | ignoreDataHeader
+    // skipHeader | header || addProvidedHeader | headerIsSet | ignoreDataHeader
     // true       | [...]  || false             | true        | true
     // true       | []     || false             | true        | true
     // false      | [...]  || true              | false       | false
     // false      | []     || false             | false       | false
 
     const addProvidedHeader = !_skipHeader && keys.length > 0
-    let keysWritten         = _skipHeader
+    let headerIsSet         = _skipHeader
     let ignoreDataHeader    = _skipHeader
     const fillMissingValues = typeof _missingAs !== 'undefined'
 
     const preprocessingFs   = []
-                               preprocessingFs.push(jsonsToStrings)
-    if (_fixedLength)          preprocessingFs.push(controlFixedLength)
     if (_trimWhitespaces)      preprocessingFs.push(removeWhitespaces)
     if (_emptyAsNull)          preprocessingFs.push(emptyToNull)
     if (_skipNullAndUndefined) preprocessingFs.push(removeNulls)
-    if (fillMissingValues)     preprocessingFs.push(fillUpValues)
+    if (fillMissingValues)     preprocessingFs.push(fillUpRecord)
 
-    const preprocessingF = (values, line) => {
-      let err     = []
-      let values2 = values
-
+    const preprocessingF = record => {
+      let record2 = record
       for (let i = 0; i < preprocessingFs.length; i++) {
         const f   = preprocessingFs[i]
-        const res = f(values2, line)
-        if (res.err.length > 0) err = err.concat(res.err)
-        values2   = res.values
+        record2   = f(record2)
       }
-
-      return {err, values: values2}
+      return record2
     }
 
     return jsons => {
-      const err = []
-      let str   = ''
+      const err   = []
+      let records = []
 
-      let values = []
-
-      if (!keysWritten) {
-        if (addProvidedHeader) values.push(keys)
-        keysWritten = true
+      if (!headerIsSet && addProvidedHeader) {
+        records.push(keys)
+        headerIsSet = true
       }
 
-      // Maybe move preprocessing down (to HERE)
-      const line  = verbose > 0 ? lines[i] : undefined
-      const res   = preprocessingF(jsons, line)
+      let res = jsonsToRecords(jsons)
       if (res.err.length > 0) err = err.concat(res.err)
-      values      = values.concat(res.values)
+      records = records.concat(res.records)
 
+      if (!headerIsSet) {
+        if (records.length > 0) keys = records[0]
+        headerIsSet = true
+      }
+
+      res     = controlFixedLength(records)
+      if (res.err.length > 0) err = err.concat(res.err)
+      records = records.concat(res.records)
+      
       const start = ignoreDataHeader ? 1 : 0
       if (ignoreDataHeader) ignoreDataHeader = false
+      
+      let str = ''
 
-      for (let i = start; i < values.length; i++) {
-        const value = values[i]
+      for (let i = start; i < records.length; i++) {
+        let record = records[i]
+        record     = preprocessingF(record)
 
-        // HERE could be a good place for preprocessing
-
-        str += value[0]
-        for (let i = 1; i < value.length; i++) str += _delimiter + value[i]
+        str += record[0]
+        for (let i = 1; i < record.length; i++) str += _delimiter + record[i]
         str += _recordSeparator
       }
 
       return ({err, str})
     }
 
-    function jsonsToStrings (values) {
+    function jsonsToRecords (jsons) {
+      const records = []
       // add quotes to values?
       // escape quotes in values?
 
@@ -144,30 +144,30 @@ function dsv (defaults) {
       // Could be part of preprocessing
       // somewhere here: convert each json into a list of strings that is fed into preprocessing
       //                 the json type is important here (array vs. object vs. others)
-      return {err: [], values}
+      return {err: [], records}
     }
 
-    function controlFixedLength (values) {
-      return {err: [], values}
+    function controlFixedLength (records) {
+      return {err: [], records}
     }
 
-    function removeWhitespaces (values) {
-      return {err: [], values}
+    function removeWhitespaces (record) {
+      return record
     }
 
-    function emptyToNull (values) {
-      return {err: [], values}
+    function emptyToNull (record) {
+      return record
     }
 
-    function removeNulls (values) {
-      return {err: [], values}
+    function removeNulls (record) {
+      return record
     }
 
-    function fillUpValues (values) {
+    function fillUpRecord (record) {
       // use _missingAs
       _missingAs
 
-      return {err: [], values}
+      return record
     }
   }
 }
