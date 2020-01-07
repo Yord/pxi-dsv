@@ -1,4 +1,4 @@
-const dsv = require('./dsv')
+const dsv = require('./dsv2')
 
 module.exports = {
   name: 'tsv',
