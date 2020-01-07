@@ -973,6 +973,92 @@ test('removes quotes around values', () => {
   )
 })
 
+test('ignores delimiters and escaped quotes in quoted values', () => {
+  const err                 = []
+
+  const argv                = {verbose: 0}
+  const lines               = anything()
+
+  const jsonsTokensDefaults = (
+    oneof(...delimiters).chain(delimiter =>
+      oneof(...quoteOrEscape).chain(quote =>
+        oneof(...quoteOrEscape).chain(escape =>
+          boolean().chain(fixedLength =>
+            unicodeStringJsonObjectListFixedLength([delimiter, quote, escape]).map(jsons => {
+              const _jsons = jsons.map(json =>
+                Object.keys(json)
+                .reduce(
+                  (acc, key, i) => {
+                    const value = Object.values(json)[i]
+                    return ({
+                      ...acc,
+                      [key]: (
+                        value.slice(0, value.length / 3) +
+                        quote +
+                        value.slice(value.length / 3, value.length / 3 * 2) +
+                        delimiter +
+                        value.slice(value.length / 3 * 2)
+                      )
+                    })
+                  },
+                  {}
+                )
+              )
+              
+              const tokens = (
+                [Object.keys(jsons[0]).join(delimiter)]
+                .concat(
+                  jsons.map(json =>
+                    Object.values(json)
+                    .map(value =>
+                      quote +
+                      value.slice(0, value.length / 3) +
+                      escape + quote +
+                      value.slice(value.length / 3, value.length / 3 * 2) +
+                      delimiter +
+                      value.slice(value.length / 3 * 2) +
+                      quote
+                    )
+                    .join(delimiter)
+                  )
+                )
+              )
+
+              return {
+                jsons: _jsons,
+                tokens,
+                defaults: {
+                  delimiter,
+                  quote,
+                  escape,
+                  header:          '[]',
+                  skipHeader:      false,
+                  fixedLength,
+                  trimWhitespaces: false,
+                  skipEmptyValues: false,
+                  missingAsNull:   false,
+                  emptyAsNull:     false,
+                  skipNull:        false
+                }
+              }
+            })
+          )
+        )
+      )
+    )
+  )
+  
+  assert(
+    property(lines, jsonsTokensDefaults, (lines, {jsons, tokens, defaults}) =>
+      expect(
+        parserFactory(defaults)(argv)(tokens, lines)
+      ).toStrictEqual(
+        {err, jsons}
+      )
+    )
+  )
+})
+
 function unicodeStringJsonObjectListFixedLength (blacklist, minLen = 1) {
   return integer(minLen, 20).chain(len =>
     array(base64(), len, len).chain(keys => {
