@@ -74,6 +74,7 @@ function dsv (defaults) {
     const returnTypeObject = !_skipHeader || keysLength > 0
 
     const postProcessingFs = []
+                          postProcessingFs.push(removeQuotes)
     if (_fixedLength)     postProcessingFs.push(controlFixedLength)
     if (_skipEmptyValues) postProcessingFs.push(removeEmptyValues)
     if (_trimWhitespaces) postProcessingFs.push(removeWhitespaces(['\u0020', '\u00A0', '\u2000', '\u2001', '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007', '\u2008', '\u2009', '\u200A', '\u2028', '\u205F', '\u3000']))
@@ -185,6 +186,20 @@ function dsv (defaults) {
       }
 
       return {err, jsons}
+    }
+
+    function removeQuotes (values) {
+      const values2 = []
+      for (let i = 0; i < values.length; i++) {
+        const value = values[i]
+        const len   = value.length
+        if (len > 0 && value[0] === _quote && value[len - 1] === _quote) {
+          values2.push(value.slice(1, len - 1))
+        } else {
+          values2.push(value)
+        }
+      }
+      return {err: [], values: values2}
     }
 
     function controlFixedLength (values, lineNo) {
