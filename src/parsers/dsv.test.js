@@ -921,6 +921,58 @@ test('parses a dsv file without provided delimiter and verbose 2', () => {
   )
 })
 
+test('removes quotes around values', () => {
+  const err                 = []
+
+  const argv                = {verbose: 0}
+  const lines               = anything()
+
+  const jsonsTokensDefaults = (
+    oneof(...delimiters).chain(delimiter =>
+      oneof(...quoteOrEscape).chain(quote =>
+        oneof(...quoteOrEscape).chain(escape =>
+          boolean().chain(fixedLength =>
+            unicodeStringJsonObjectListFixedLength([delimiter, quote, escape]).map(jsons => {
+              const tokens = (
+                [Object.keys(jsons[0]).join(delimiter)]
+                .concat(jsons.map(json => Object.values(json).map(value => quote + value + quote).join(delimiter)))
+              )
+  
+              return {
+                jsons,
+                tokens,
+                defaults: {
+                  delimiter,
+                  quote,
+                  escape,
+                  header:          '[]',
+                  skipHeader:      false,
+                  fixedLength,
+                  trimWhitespaces: false,
+                  skipEmptyValues: false,
+                  missingAsNull:   false,
+                  emptyAsNull:     false,
+                  skipNull:        false
+                }
+              }
+            })
+          )
+        )
+      )
+    )
+  )
+  
+  assert(
+    property(lines, jsonsTokensDefaults, (lines, {jsons, tokens, defaults}) =>
+      expect(
+        parserFactory(defaults)(argv)(tokens, lines)
+      ).toStrictEqual(
+        {err, jsons}
+      )
+    )
+  )
+})
+
 function unicodeStringJsonObjectListFixedLength (blacklist, minLen = 1) {
   return integer(minLen, 20).chain(len =>
     array(base64(), len, len).chain(keys => {
