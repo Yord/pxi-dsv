@@ -139,16 +139,16 @@ function dsv (defaults) {
             else if (ch === _delimiter) valueFound   = true
           }
 
-          if (valueFound) {
+          if (valueFound || at === token.length - 1) {
+            const value = token.slice(from, valueFound ? at : at + 1)
             valueFound  = false
-            const value = token.slice(from, at)
-            values.push(value)
             from        = at + 1
+
+            values.push(value)
           }
 
-          if (at === token.length - 1) {
-            const value = token.slice(from)
-            values.push(value)
+          if (at === token.length - 1 && ch === _delimiter) {
+            values.push('')
           }
         }
 
