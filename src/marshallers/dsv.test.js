@@ -26,13 +26,7 @@ test('marshals a dsv file with missing options and verbose 0', () => {
           jsons,
           str,
           defaults: {
-            skipHeader:      false,
-            fixedLength,
-            trimWhitespaces: false,
-            skipEmptyValues: false,
-            missingAsNull:   false,
-            emptyAsNull:     false,
-            skipNull:        false
+            fixedLength
           }
         }
       })
@@ -70,13 +64,7 @@ test('marshals a dsv file with missing options and verbose 1', () => {
           jsons,
           str,
           defaults: {
-            skipHeader:      false,
-            fixedLength,
-            trimWhitespaces: false,
-            skipEmptyValues: false,
-            missingAsNull:   false,
-            emptyAsNull:     false,
-            skipNull:        false
+            fixedLength
           }
         }
       })
@@ -114,13 +102,7 @@ test('marshals a dsv file with missing options and verbose 2', () => {
           jsons,
           str,
           defaults: {
-            skipHeader:      false,
-            fixedLength,
-            trimWhitespaces: false,
-            skipEmptyValues: false,
-            missingAsNull:   false,
-            emptyAsNull:     false,
-            skipNull:        false
+            fixedLength
           }
         }
       })
@@ -164,14 +146,8 @@ test('marshalls a dsv file without provided header', () => {
                     delimiter,
                     quote,
                     escape,
-                    header:          '[]',
-                    skipHeader:      false,
-                    fixedLength,
-                    trimWhitespaces: false,
-                    skipEmptyValues: false,
-                    missingAsNull:   false,
-                    emptyAsNull:     false,
-                    skipNull:        false
+                    header: '[]',
+                    fixedLength
                   }
                 }
               })
@@ -227,13 +203,7 @@ test('marshalls a dsv file with provided header', () => {
                       quote,
                       escape,
                       header,
-                      skipHeader:      false,
-                      fixedLength,
-                      trimWhitespaces: false,
-                      skipEmptyValues: false,
-                      missingAsNull:   false,
-                      emptyAsNull:     false,
-                      skipNull:        false
+                      fixedLength
                     }
                   }
                 })
@@ -289,13 +259,8 @@ test('marshalls a dsv file with provided header and skipHeader', () => {
                       quote,
                       escape,
                       header,
-                      skipHeader:      true,
-                      fixedLength,
-                      trimWhitespaces: false,
-                      skipEmptyValues: false,
-                      missingAsNull:   false,
-                      emptyAsNull:     false,
-                      skipNull:        false
+                      skipHeader: true,
+                      fixedLength
                     }
                   }
                 })
@@ -344,14 +309,9 @@ test('marshalls a dsv file without provided header and skipHeader', () => {
                     delimiter,
                     quote,
                     escape,
-                    header:          '[]',
-                    skipHeader:      true,
-                    fixedLength,
-                    trimWhitespaces: false,
-                    skipEmptyValues: false,
-                    missingAsNull:   false,
-                    emptyAsNull:     false,
-                    skipNull:        false
+                    header:     '[]',
+                    skipHeader: true,
+                    fixedLength
                   }
                 }
               })
