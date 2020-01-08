@@ -124,7 +124,7 @@ function dsv (defaults) {
       if (_fixedLength) {
         res     = controlFixedLength(records)
         if (res.err.length > 0) err = err.concat(res.err)
-        records = records.concat(res.records)
+        records = res.records
       }
       
       const start = ignoreDataHeader ? 1 : 0
