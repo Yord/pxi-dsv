@@ -145,6 +145,7 @@ function dsv (defaults) {
     }
 
     function jsonsToRecords (jsons) {
+      const err     = []
       const records = []
       
       for (let i = 0; i < jsons.length; i++) {
@@ -189,7 +190,10 @@ function dsv (defaults) {
               // add quotes to records?
               // escape quotes in records?
             } else {
-    
+              const msg  = {msg: 'Arrays are not allowed as fields'}
+              const line = verbose > 0 ? {line: -1}                    : {}
+              const info = verbose > 1 ? {info: JSON.stringify(field)} : {}
+              err.push(Object.assign(msg, line, info))
             }
           } else if (typeof field === 'object') {
             if (_allowListValues) {
@@ -197,10 +201,16 @@ function dsv (defaults) {
               // add quotes to records?
               // escape quotes in records?
             } else {
-              
+              const msg  = {msg: 'Objects are not allowed as fields'}
+              const line = verbose > 0 ? {line: -1}                    : {}
+              const info = verbose > 1 ? {info: JSON.stringify(field)} : {}
+              err.push(Object.assign(msg, line, info))
             }
           } else {
-            // in case it is a Symbol or BigInt
+            const msg  = {msg: 'Type not allowed as field'}
+            const line = verbose > 0 ? {line: -1}                                      : {}
+            const info = verbose > 1 ? {info: `${field.toString()} (${typeof field})`} : {}
+            err.push(Object.assign(msg, line, info))
           }
         }
 
