@@ -2,8 +2,8 @@ const {array, assert, base64, boolean, constant, oneof, property} = require('fas
 const unicodeStringJsonObjectListFixedLength = require('../shared/unicodeStringJsonObjectListFixedLength')
 const {dsv: marshallerFactory} = require('./dsv')
 
-const recordSeparators = ['\n'].map(constant)
-const delimiters       = [',', ';', '.', '|', '/', '-', '+', '$', '#', '!'].map(constant)
+const recordSeparators = ['\n', '\r\n', '|', '@'].map(constant)
+const delimiters       = [',', ';', '.', '/', '-', '+', '$', '#', '!'].map(constant)
 const quoteOrEscape    = ["'", '"', '`', '\\'].map(constant)
 
 test('marshals a dsv file with missing options and verbose 0', () => {
