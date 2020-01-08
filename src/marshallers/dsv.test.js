@@ -1,6 +1,10 @@
-const {assert, boolean, property} = require('fast-check')
+const {assert, boolean, constant, oneof, property} = require('fast-check')
 const unicodeStringJsonObjectListFixedLength = require('../shared/unicodeStringJsonObjectListFixedLength')
 const {dsv: marshallerFactory} = require('./dsv')
+
+const recordSeparators = ['\n'].map(constant)
+const delimiters       = [',', ';', '.', '|', '/', '-', '+', '$', '#', '!'].map(constant)
+const quoteOrEscape    = ["'", '"', '`', '\\'].map(constant)
 
 test('marshals a dsv file with missing options and verbose 0', () => {
   const argv                = {verbose: 0}
@@ -120,6 +124,61 @@ test('marshals a dsv file with missing options and verbose 2', () => {
           }
         }
       })
+    )
+  )
+  
+  assert(
+    property(jsonsStrDefaults, ({jsons, str, defaults}) =>
+      expect(
+        marshallerFactory(defaults)(argv)(jsons)
+      ).toStrictEqual(
+        {err, str}
+      )
+    )
+  )
+})
+
+test('marshals a dsv file without provided header', () => {
+  const err                 = []
+
+  const argv                = {verbose: 0}
+
+  const jsonsStrDefaults = (
+    oneof(...recordSeparators).chain(recordSeparator =>
+      oneof(...delimiters).chain(delimiter =>
+        oneof(...quoteOrEscape).chain(quote =>
+          oneof(...quoteOrEscape).chain(escape =>
+            boolean().chain(fixedLength =>
+              unicodeStringJsonObjectListFixedLength([delimiter, quote, escape]).map(jsons => {
+                const str = (
+                  [Object.keys(jsons[0]).join(delimiter)]
+                  .concat(jsons.map(json => Object.values(json).join(delimiter)))
+                  .join(recordSeparator) + recordSeparator
+                )
+
+                return {
+                  jsons,
+                  str,
+                  defaults: {
+                    recordSeparator,
+                    delimiter,
+                    quote,
+                    escape,
+                    header:          '[]',
+                    skipHeader:      false,
+                    fixedLength,
+                    trimWhitespaces: false,
+                    skipEmptyValues: false,
+                    missingAsNull:   false,
+                    emptyAsNull:     false,
+                    skipNull:        false
+                  }
+                }
+              })
+            )
+          )
+        )
+      )
     )
   )
   
