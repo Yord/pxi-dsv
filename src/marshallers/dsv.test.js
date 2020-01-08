@@ -1,4 +1,4 @@
-const {assert, boolean, constant, oneof, property} = require('fast-check')
+const {array, assert, base64, boolean, constant, oneof, property} = require('fast-check')
 const unicodeStringJsonObjectListFixedLength = require('../shared/unicodeStringJsonObjectListFixedLength')
 const {dsv: marshallerFactory} = require('./dsv')
 
@@ -174,6 +174,69 @@ test('marshals a dsv file without provided header', () => {
                     skipNull:        false
                   }
                 }
+              })
+            )
+          )
+        )
+      )
+    )
+  )
+  
+  assert(
+    property(jsonsStrDefaults, ({jsons, str, defaults}) =>
+      expect(
+        marshallerFactory(defaults)(argv)(jsons)
+      ).toStrictEqual(
+        {err, str}
+      )
+    )
+  )
+})
+
+test('marshalling a dsv file with provided header', () => {
+  const err                 = []
+
+  const argv                = {verbose: 0}
+
+  const jsonsStrDefaults = (
+    oneof(...recordSeparators).chain(recordSeparator =>
+      oneof(...delimiters).chain(delimiter =>
+        oneof(...quoteOrEscape).chain(quote =>
+          oneof(...quoteOrEscape).chain(escape =>
+            boolean().chain(fixedLength =>
+              unicodeStringJsonObjectListFixedLength([delimiter, quote, escape]).chain(jsons => {
+                const len = Object.keys(jsons[0]).length
+
+                return array(base64(), len, len).map(keys => {
+                  const _jsons  = jsons.map(json =>
+                    Object.values(json).reduce((acc, value, i) => ({...acc, [keys[i]]: value}), {})
+                  )
+                  const str = (
+                    [keys.join(delimiter)]
+                    .concat(_jsons.map(json => Object.values(json).join(delimiter)))
+                    .join(recordSeparator) + recordSeparator
+                  )
+                  const header = '[' + keys.map(key => '"' + key + '"').join(',') + ']'
+      
+                  return {
+                    jsons: _jsons,
+                    str,
+                    defaults: {
+                      recordSeparator,
+                      delimiter,
+                      quote,
+                      escape,
+                      header,
+                      skipHeader:      false,
+                      fixedLength,
+                      trimWhitespaces: false,
+                      skipEmptyValues: false,
+                      missingAsNull:   false,
+                      emptyAsNull:     false,
+                      skipNull:        false
+                    }
+                  }
+                })
               })
             )
           )
