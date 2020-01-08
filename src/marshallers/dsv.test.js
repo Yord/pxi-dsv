@@ -1,5 +1,6 @@
 const {array, assert, base64, boolean, constant, integer, oneof, property} = require('fast-check')
 const unicodeStringJsonObjectListFixedLength = require('../shared/unicodeStringJsonObjectListFixedLength')
+const whitespace = require('../shared/whitespace')
 const {dsv: marshallerFactory} = require('./dsv')
 
 const recordSeparators = ['\n', '\r\n', '|', '@'].map(constant)
@@ -478,6 +479,68 @@ test('marshalls a dsv file with variable values lengths and the fixed length opt
   
   assert(
     property(jsonsStrDefaultsErr, ({jsons, str, defaults, err}) =>
+      expect(
+        marshallerFactory(defaults)(argv)(jsons)
+      ).toStrictEqual(
+        {err, str}
+      )
+    )
+  )
+})
+
+test('parses a dsv file and trim whitespaces', () => {
+  const err                 = []
+
+  const argv                = {verbose: 0}
+
+  const jsonsStrDefaults = (
+    oneof(...recordSeparators).chain(recordSeparator =>
+      oneof(...delimiters).chain(delimiter =>
+        oneof(...quoteOrEscape).chain(quote =>
+          oneof(...quoteOrEscape).chain(escape =>
+            boolean().chain(fixedLength =>
+              unicodeStringJsonObjectListFixedLength([delimiter, quote, escape]).chain(jsons =>
+                whitespace().map(ws => {
+                  const _jsons = jsons.map(json => {
+                    return Object.keys(json).reduce(
+                      (acc, key) => ({
+                        ...acc,
+                        [ws + key.replace(/^\s+|\s+$/g, '') + ws]: ws + json[key].replace(/^\s+|\s+$/g, '') + ws
+                      }),
+                      {}
+                    )
+                  })
+
+                  const str = (
+                    [Object.keys(_jsons[0]).map(key => key.replace(/^\s+|\s+$/g, '')).join(delimiter)]
+                    .concat(_jsons.map(json => Object.values(json).map(value => value.replace(/^\s+|\s+$/g, '')).join(delimiter)))
+                    .join(recordSeparator) + recordSeparator
+                  )
+
+                  return {
+                    jsons: _jsons,
+                    str,
+                    defaults: {
+                      recordSeparator,
+                      delimiter,
+                      quote,
+                      escape,
+                      header:          '[]',
+                      fixedLength,
+                      trimWhitespaces: true
+                    }
+                  }
+                })
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+  
+  assert(
+    property(jsonsStrDefaults, ({jsons, str, defaults}) =>
       expect(
         marshallerFactory(defaults)(argv)(jsons)
       ).toStrictEqual(
