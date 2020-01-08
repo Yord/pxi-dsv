@@ -250,7 +250,13 @@ function dsv (defaults) {
     }
 
     function emptyToNull (record) {
-      return record
+      const record2 = []
+      for (let i = 0; i < record.length; i++) {
+        const value  = record[i]
+        const value2 = value === '' ? null : value
+        record2.push(value2)
+      }
+      return record2
     }
 
     function removeNulls (record) {
