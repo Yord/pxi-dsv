@@ -94,7 +94,7 @@ function dsv (defaults) {
     }
 
     return jsons => {
-      const err   = []
+      let err     = []
       let records = []
 
       if (!headerIsSet && addProvidedHeader) {
