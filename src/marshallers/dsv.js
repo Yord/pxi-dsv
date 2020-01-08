@@ -240,7 +240,13 @@ function dsv (defaults) {
     }
 
     function removeWhitespaces (record) {
-      return record
+      const record2 = []
+      for (let i = 0; i < record.length; i++) {
+        const value  = record[i]
+        const value2 = value.replace(/^\s+|\s+$/g, '')
+        record2.push(value2)
+      }
+      return record2
     }
 
     function emptyToNull (record) {
