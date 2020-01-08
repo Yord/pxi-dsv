@@ -217,7 +217,26 @@ function dsv (defaults) {
     }
 
     function controlFixedLength (records) {
-      return {err: [], records}
+      const err      = []
+      const records2 = []
+
+      for (let i = 0; i < records.length; i++) {
+        const record = records[i]
+
+        if (keys.length === 0) keys = record
+
+        if (headerIsSet && keys.length !== record.length) {
+          const msg  = {msg: 'Number of values does not match number of headers'}
+          const line = verbose > 0 ? {line: -1}                                                             : {}
+          const info = verbose > 1 ? {info: `values [${record.join(',')}] and headers [${keys.join(',')}]`} : {}
+          
+          err.push(Object.assign(msg, line, info))
+        } else {
+          records2.push(record)
+        }
+      }
+
+      return {err, records: records2}
     }
 
     function removeWhitespaces (record) {
