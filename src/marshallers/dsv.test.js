@@ -317,3 +317,58 @@ test('marshalls a dsv file with provided header and skipHeader', () => {
     )
   )
 })
+
+test('marshalls a dsv file without provided header and skipHeader', () => {
+  const err                 = []
+
+  const argv                = {verbose: 0}
+
+  const jsonsStrDefaults = (
+    oneof(...recordSeparators).chain(recordSeparator =>
+      oneof(...delimiters).chain(delimiter =>
+        oneof(...quoteOrEscape).chain(quote =>
+          oneof(...quoteOrEscape).chain(escape =>
+            boolean().chain(fixedLength =>
+              unicodeStringJsonObjectListFixedLength([delimiter, quote, escape]).map(jsons => {
+                const _jsons  = jsons.map(json => Object.values(json))
+                const str = (
+                  _jsons.map(json => Object.values(json).join(delimiter))
+                  .join(recordSeparator) + recordSeparator
+                )
+    
+                return {
+                  jsons: _jsons,
+                  str,
+                  defaults: {
+                    recordSeparator,
+                    delimiter,
+                    quote,
+                    escape,
+                    header:          '[]',
+                    skipHeader:      true,
+                    fixedLength,
+                    trimWhitespaces: false,
+                    skipEmptyValues: false,
+                    missingAsNull:   false,
+                    emptyAsNull:     false,
+                    skipNull:        false
+                  }
+                }
+              })
+            )
+          )
+        )
+      )
+    )
+  )
+  
+  assert(
+    property(jsonsStrDefaults, ({jsons, str, defaults}) =>
+      expect(
+        marshallerFactory(defaults)(argv)(jsons)
+      ).toStrictEqual(
+        {err, str}
+      )
+    )
+  )
+})
