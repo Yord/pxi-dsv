@@ -1,4 +1,4 @@
-const {array, assert, base64, boolean, constant, oneof, property} = require('fast-check')
+const {array, assert, base64, boolean, constant, integer, oneof, property} = require('fast-check')
 const unicodeStringJsonObjectListFixedLength = require('../shared/unicodeStringJsonObjectListFixedLength')
 const {dsv: marshallerFactory} = require('./dsv')
 
