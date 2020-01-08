@@ -185,7 +185,7 @@ test('marshalls a dsv file with provided header', () => {
 
                 return array(base64(), len, len).map(keys => {
                   const _jsons  = jsons.map(json =>
-                    Object.values(json).reduce((acc, value, i) => ({...acc, [keys[i]]: value}), {})
+                    Object.values(json).reduce((acc, value, i) => ({...acc, [keys[i]+i]: value}), {})
                   )
                   const str = (
                     [keys.join(delimiter)]
@@ -242,7 +242,7 @@ test('marshalls a dsv file with provided header and skipHeader', () => {
 
                 return array(base64(), len, len).map(keys => {
                   const _jsons = jsons.map(json =>
-                    Object.values(json).reduce((acc, value, i) => ({...acc, [keys[i]]: value}), {})
+                    Object.values(json).reduce((acc, value, i) => ({...acc, [keys[i]+i]: value}), {})
                   )
                   const str = (
                     _jsons.map(json => Object.values(json).join(delimiter))
