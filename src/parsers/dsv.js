@@ -1,3 +1,5 @@
+const handleMissingOption = require('../shared/handleMissingOption')
+
 module.exports = {
   name: 'dsv',
   desc: (
@@ -73,20 +75,20 @@ function dsv (defaults) {
     let ignoreDataHeader   =  _skipHeader
     const returnTypeObject = !_skipHeader || keysLength > 0
 
-    const postProcessingFs = []
-    if (_fixedLength)     postProcessingFs.push(controlFixedLength)
-    if (_skipEmptyValues) postProcessingFs.push(removeEmptyValues)
-    if (_trimWhitespaces) postProcessingFs.push(removeWhitespaces)
-    if (_emptyAsNull)     postProcessingFs.push(emptyToNull)
-    if (_skipNull)        postProcessingFs.push(removeNulls)
-    if (_missingAsNull)   postProcessingFs.push(missingToNull)
+    const postprocessingFs = []
+    if (_fixedLength)     postprocessingFs.push(controlFixedLength)
+    if (_skipEmptyValues) postprocessingFs.push(removeEmptyValues)
+    if (_trimWhitespaces) postprocessingFs.push(removeWhitespaces)
+    if (_emptyAsNull)     postprocessingFs.push(emptyToNull)
+    if (_skipNull)        postprocessingFs.push(removeNulls)
+    if (_missingAsNull)   postprocessingFs.push(missingToNull)
 
-    const postProcessingF = (values, line) => {
+    const postprocessingF = (values, line) => {
       let err     = []
       let values2 = values
 
-      for (let i = 0; i < postProcessingFs.length; i++) {
-        const f   = postProcessingFs[i]
+      for (let i = 0; i < postprocessingFs.length; i++) {
+        const f   = postprocessingFs[i]
         const res = f(values2, line)
         if (res.err.length > 0) err = err.concat(res.err)
         values2   = res.values
@@ -166,7 +168,7 @@ function dsv (defaults) {
         }
 
         const line = verbose > 0 ? lines[i] : undefined
-        const res  = postProcessingF(values, line)
+        const res  = postprocessingF(values, line)
         if (res.err.length > 0) err = err.concat(res.err)
         values     = res.values
 
@@ -287,14 +289,4 @@ function dsv (defaults) {
       }
     }
   }
-}
-
-function handleMissingOption (field, options, argv) {
-  if (typeof field === 'undefined') {
-    const msg  = {msg: `Please provide ${options} option`}
-    const line = argv.verbose > 0 ? {line: -1}                   : {}
-    const info = argv.verbose > 1 ? {info: JSON.stringify(argv)} : {}
-    return [Object.assign(msg, line, info)]
-  }
-  return []
 }
