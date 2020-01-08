@@ -549,3 +549,78 @@ test('parses a dsv file and trim whitespaces', () => {
     )
   )
 })
+
+test('marshalls a dsv file and convert empty values to nulls', () => {
+  const argv  = {verbose: 0}
+
+  const jsonsTokensDefaultsErr = (
+    oneof(...recordSeparators).chain(recordSeparator =>
+      oneof(...delimiters).chain(delimiter =>
+        oneof(...quoteOrEscape).chain(quote =>
+          oneof(...quoteOrEscape).chain(escape =>
+            boolean().chain(fixedLength =>
+              unicodeStringJsonObjectListFixedLength([delimiter, quote, escape], 2).chain(jsons => 
+                integer(0, jsons.length - 1).map(noOfNulls => {
+                  const err = []
+
+                  const _jsons = noOfNulls === 0 ? (
+                    jsons
+                  ) : (
+                    jsons
+                    .slice(0, noOfNulls)
+                    .map(json =>
+                      Object.keys(json)
+                      .reduce((acc, key, id) => ({...acc, [key+id]: ''}), {})
+                    )
+                    .concat(jsons.slice(noOfNulls))
+                  )
+
+                  const str = noOfNulls === 0 ? (
+                    [Object.keys(_jsons[0]).join(delimiter)]
+                    .concat(_jsons.map(json => Object.values(json).join(delimiter)))
+                    .join(recordSeparator) + recordSeparator
+                  ) : (
+                    [Object.keys(_jsons[0]).join(delimiter)]
+                    .concat(
+                      _jsons.slice(0, noOfNulls).map(json => Object.values(json).map(() => 'null').join(delimiter))
+                    )
+                    .concat(
+                      _jsons.slice(noOfNulls).map(json => Object.values(json).join(delimiter))
+                    )
+                    .join(recordSeparator) + recordSeparator
+                  )
+                  
+                  return {
+                    noOfNulls,
+                    err,
+                    jsons: _jsons,
+                    str,
+                    defaults: {
+                      recordSeparator,
+                      delimiter,
+                      quote,
+                      escape,
+                      header:      '[]',
+                      fixedLength,
+                      emptyAsNull: true
+                    }
+                  }
+                })
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+  
+  assert(
+    property(jsonsTokensDefaultsErr, ({jsons, str, defaults, err}) =>
+      expect(
+        marshallerFactory(defaults)(argv)(jsons)
+      ).toStrictEqual(
+        {err, str}
+      )
+    )
+  )
+})
