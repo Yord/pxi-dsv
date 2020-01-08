@@ -175,7 +175,7 @@ function dsv (defaults) {
               record2.push(field.toString())
             }
           } else if (typeof field === 'boolean') {
-            record2.push(field.toString)
+            record2.push(field.toString())
           } else if (typeof field === 'undefined') {
             record2.push('null')
           } else if (field === null) {
