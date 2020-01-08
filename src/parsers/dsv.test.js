@@ -137,7 +137,7 @@ test('parses a dsv file with provided header and skipHeader', () => {
               const len = Object.keys(jsons[0]).length
 
               return array(base64(), len, len).map(keys => {
-                const _jsons  = jsons.map(json =>
+                const _jsons = jsons.map(json =>
                   Object.values(json).reduce((acc, value, i) => ({...acc, [keys[i]]: value}), {})
                 )
                 const tokens = (
