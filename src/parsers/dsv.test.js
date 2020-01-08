@@ -469,7 +469,7 @@ test('parses a dsv file and trim whitespaces', () => {
               whitespace().map(ws => {
                 const _jsons = jsons.map(json => {
                   return Object.keys(json).reduce(
-                    (acc, key) => ({...acc, [key.replace(/\s+/g, '')]: json[key].replace(/\s+/g, '')}),
+                    (acc, key) => ({...acc, [key.replace(/^\s+|\s+$/g, '')]: json[key].replace(/^\s+|\s+$/g, '')}),
                     {}
                   )
                 })
