@@ -10,7 +10,7 @@ module.exports = {
     '--mescape, --escape, -C [char]\nCharacter used to escape quote in strings.\n\n' +
     '--mheader, --header, -H [string]\nProvide a custom header as a JSON array string.\n\n' +
     '--mskip-header, --skip-header, -S [boolean]\nDo not print a header.\n\n' +
-    '--mallow-list-values, --allow-list-values, -L [boolean]\nWhether lists and objects are allowed in csv values or not. Lists and objects are encoded as JSON.\n\n' +
+    '--mallow-list-values, --allow-list-values, -L [boolean]\nIf this flag is set, lists and objects are allowed in csv values. They are encoded as JSON.\n\n' +
     '--mfixed-length, --fixed-length, -F [boolean]\nPreprocessing #1: Controls, whether each line has the same number of values. Ignores all deviating lines while reporting errors.\n\n' +
     '--mtrim-whitespaces, --trim-whitespaces, -W [boolean]\nPreprocessing #2: Trim whitespaces around values.\n\n' +
     '--mempty-as-null, --empty-as-null, -I [boolean]\nPreprocessing #3: Treat empty fields as null.\n\n' +
