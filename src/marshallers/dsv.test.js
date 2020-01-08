@@ -332,3 +332,80 @@ test('marshalls a dsv file without provided header and skipHeader', () => {
     )
   )
 })
+
+test('marshalls a dsv file with variable values lengths and the fixed length option', () => {
+  const argv  = {verbose: 0}
+
+  const jsonsStrDefaultsErr = (
+    oneof(...recordSeparators).chain(recordSeparator =>
+      oneof(...delimiters).chain(delimiter =>
+        oneof(...quoteOrEscape).chain(quote =>
+          oneof(...quoteOrEscape).chain(escape =>
+            unicodeStringJsonObjectListFixedLength([delimiter, quote, escape], 3).chain(jsons => 
+              integer(0, jsons.length - 1).map(noOfDeletes => {
+                const _jsons = (
+                  [jsons[0]]
+                  .concat(
+                    jsons.slice(1, noOfDeletes + 1).map(json => {
+                      const keys = Object.keys(json)
+                      return (
+                        keys
+                        .slice(0, -1)
+                        .reduce((acc, key, i) => ({...acc, [key+i]: Object.values(json)[i]}), {})
+                      )
+                    })
+                  ).concat(
+                    jsons.slice(noOfDeletes + 1)
+                  )
+                )
+                
+                const str = noOfDeletes === 0 ? (
+                  [Object.keys(_jsons[0]).join(delimiter)]
+                  .concat(_jsons.map(json => Object.values(json).join(delimiter)))
+                  .join(recordSeparator) + recordSeparator
+                ) : (
+                  [Object.keys(_jsons[0]).join(delimiter)]
+                  .concat(Object.values(_jsons[0]).join(delimiter))
+                  .concat(
+                    _jsons.slice(noOfDeletes + 1).map(json => Object.values(json).join(delimiter))
+                  ).join(recordSeparator) + recordSeparator
+                )
+
+                const err = []
+                for (let i = 0; i < noOfDeletes; i++) {
+                  const msg = {msg: 'Number of values does not match number of headers'}
+                  err.push(msg)
+                }
+    
+                return {
+                  noOfDeletes,
+                  err,
+                  jsons: _jsons,
+                  str,
+                  defaults: {
+                    recordSeparator,
+                    delimiter,
+                    quote,
+                    escape,
+                    header:          '[]',
+                    fixedLength:     true
+                  }
+                }
+              })
+            )
+          )
+        )
+      )
+    )
+  )
+  
+  assert(
+    property(jsonsStrDefaultsErr, ({jsons, str, defaults, err}) =>
+      expect(
+        marshallerFactory(defaults)(argv)(jsons)
+      ).toStrictEqual(
+        {err, str}
+      )
+    )
+  )
+})
