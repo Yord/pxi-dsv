@@ -76,7 +76,6 @@ function dsv (defaults) {
 
     const addProvidedHeader = !_skipHeader && keys.length > 0
     let headerIsSet         = _skipHeader
-    let ignoreDataHeader    = _skipHeader
     const fillMissingValues = typeof _missingAs !== 'undefined'
 
     const preprocessingFs   = []
@@ -127,12 +126,9 @@ function dsv (defaults) {
         records = res.records
       }
       
-      const start = ignoreDataHeader ? 1 : 0
-      if (ignoreDataHeader) ignoreDataHeader = false
-      
       let str = ''
 
-      for (let i = start; i < records.length; i++) {
+      for (let i = 0; i < records.length; i++) {
         let record = records[i]
         record     = preprocessingF(record)
 
