@@ -66,7 +66,7 @@ function dsv (defaults) {
     }
     if (err.length > 0) return () => ({err, str: ''})
 
-    const keys              = JSON.parse(_header)
+    let keys                = JSON.parse(_header)
 
     // skipHeader | header || addProvidedHeader | headerIsSet | ignoreDataHeader
     // true       | [...]  || false             | true        | true
@@ -103,18 +103,29 @@ function dsv (defaults) {
         headerIsSet = true
       }
 
+      if (!headerIsSet) {
+        if (jsons.length > 0) {
+          const json = jsons[0]
+
+          if (Array.isArray(json)) keys = json
+          else if (json === null)  keys = []
+          else if (typeof json === 'object') {
+            keys                        = Object.keys(json)
+            records.push(keys)
+          } else keys                   = []
+        }
+        headerIsSet = true
+      }
+
       let res = jsonsToRecords(jsons)
       if (res.err.length > 0) err = err.concat(res.err)
       records = records.concat(res.records)
 
-      if (!headerIsSet) {
-        if (records.length > 0) keys = records[0]
-        headerIsSet = true
+      if (_fixedLength) {
+        res     = controlFixedLength(records)
+        if (res.err.length > 0) err = err.concat(res.err)
+        records = records.concat(res.records)
       }
-
-      res     = controlFixedLength(records)
-      if (res.err.length > 0) err = err.concat(res.err)
-      records = records.concat(res.records)
       
       const start = ignoreDataHeader ? 1 : 0
       if (ignoreDataHeader) ignoreDataHeader = false
@@ -136,39 +147,64 @@ function dsv (defaults) {
     function jsonsToRecords (jsons) {
       const records = []
       
-      if (typeof jsons === 'string') {
-        // add quotes to records?
-        // escape quotes in records?
-      } else if (typeof jsons === 'number') {
-        if (Number.isNaN(jsons)) {
+      for (let i = 0; i < jsons.length; i++) {
+        const json = jsons[i]
 
-        } else {
+        let record = []
 
+        if (Array.isArray(json)) record = json
+        else if (typeof json === 'object' && json !== null) {
+          const keys = Object.keys(json)
+
+          for (let j = 0; j < keys.length; j++) {
+            const key = keys[j]
+            record.push(json[key] || null)
+          }
         }
-      } else if (typeof jsons === 'boolean') {
 
-      } else if (typeof jsons === 'undefined') {
+        const record2 = []
 
-      } else if (jsons === null) {
+        for (let j = 0; j < record.length; j++) {
+          const field = record[j]
 
-      } else if (Array.isArray(jsons)) {
-        if (_allowListValues) {
-          // in case of string values
-          // add quotes to records?
-          // escape quotes in records?
-        } else {
-
+          if (typeof field === 'string') {
+            // add quotes to records?
+            // escape quotes in records?
+            record2.push(field)
+          } else if (typeof field === 'number') {
+            if (Number.isNaN(field)) {
+              record2.push('null')
+            } else {
+              record2.push(field.toString())
+            }
+          } else if (typeof field === 'boolean') {
+            record2.push(field.toString)
+          } else if (typeof field === 'undefined') {
+            record2.push('null')
+          } else if (field === null) {
+            record2.push('null')
+          } else if (Array.isArray(field)) {
+            if (_allowListValues) {
+              // in case of string values
+              // add quotes to records?
+              // escape quotes in records?
+            } else {
+    
+            }
+          } else if (typeof field === 'object') {
+            if (_allowListValues) {
+              // in case of string values
+              // add quotes to records?
+              // escape quotes in records?
+            } else {
+              
+            }
+          } else {
+            // in case it is a Symbol or BigInt
+          }
         }
-      } else if (typeof jsons === 'object') {
-        if (_allowListValues) {
-          // in case of string values
-          // add quotes to records?
-          // escape quotes in records?
-        } else {
-          
-        }
-      } else {
-        // in case it is a Symbol or BigInt
+
+        records.push(record2)
       }
 
       return {err: [], records}
