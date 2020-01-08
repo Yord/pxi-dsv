@@ -138,7 +138,7 @@ test('marshals a dsv file with missing options and verbose 2', () => {
   )
 })
 
-test('marshals a dsv file without provided header', () => {
+test('marshalls a dsv file without provided header', () => {
   const err                 = []
 
   const argv                = {verbose: 0}
@@ -193,7 +193,7 @@ test('marshals a dsv file without provided header', () => {
   )
 })
 
-test('marshalling a dsv file with provided header', () => {
+test('marshalls a dsv file with provided header', () => {
   const err                 = []
 
   const argv                = {verbose: 0}
