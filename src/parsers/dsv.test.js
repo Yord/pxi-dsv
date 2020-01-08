@@ -1,5 +1,6 @@
 const {anything, array, assert, base64, boolean, constant, integer, oneof, property} = require('fast-check')
 const unicodeStringJsonObjectListFixedLength = require('../shared/unicodeStringJsonObjectListFixedLength')
+const whitespace = require('../shared/whitespace')
 const {dsv: parserFactory} = require('./dsv')
 
 const delimiters    = [',', ';', '.', '|', '/', '-', '+', '$', '#', '!'].map(constant)
@@ -137,7 +138,7 @@ test('parses a dsv file with provided header and skipHeader', () => {
               const len = Object.keys(jsons[0]).length
 
               return array(base64(), len, len).map(keys => {
-                const _jsons  = jsons.map(json =>
+                const _jsons = jsons.map(json =>
                   Object.values(json).reduce((acc, value, i) => ({...acc, [keys[i]]: value}), {})
                 )
                 const tokens = (
@@ -468,7 +469,7 @@ test('parses a dsv file and trim whitespaces', () => {
               whitespace().map(ws => {
                 const _jsons = jsons.map(json => {
                   return Object.keys(json).reduce(
-                    (acc, key) => ({...acc, [key.replace(/\s+/g, '')]: json[key].replace(/\s+/g, '')}),
+                    (acc, key) => ({...acc, [key.replace(/^\s+|\s+$/g, '')]: json[key].replace(/^\s+|\s+$/g, '')}),
                     {}
                   )
                 })
@@ -1058,10 +1059,3 @@ test('ignores delimiters and escaped quotes in quoted values', () => {
     )
   )
 })
-
-function whitespace () {
-  return oneof(
-    ...['\u0009', '\u000a', '\u000b', '\u000c', '\u000d', '\u0020', '\u00a0', '\u1680', '\u2000', '\u2001', '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007', '\u2008', '\u2009', '\u200a', '\u2028', '\u2029', '\u202f', '\u205f', '\u3000', '\ufeff']
-    .map(constant)
-  )
-}

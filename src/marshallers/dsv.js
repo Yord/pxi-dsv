@@ -10,7 +10,7 @@ module.exports = {
     '--mescape, --escape, -C [char]\nCharacter used to escape quote in strings.\n\n' +
     '--mheader, --header, -H [string]\nProvide a custom header as a JSON array string.\n\n' +
     '--mskip-header, --skip-header, -S [boolean]\nDo not print a header.\n\n' +
-    '--mallow-list-values, --allow-list-values, -L [boolean]\nWhether lists and objects are allowed in csv values or not. Lists and objects are encoded as JSON.\n\n' +
+    '--mallow-list-values, --allow-list-values, -L [boolean]\nIf this flag is set, lists and objects are allowed in csv values. They are encoded as JSON.\n\n' +
     '--mfixed-length, --fixed-length, -F [boolean]\nPreprocessing #1: Controls, whether each line has the same number of values. Ignores all deviating lines while reporting errors.\n\n' +
     '--mtrim-whitespaces, --trim-whitespaces, -W [boolean]\nPreprocessing #2: Trim whitespaces around values.\n\n' +
     '--mempty-as-null, --empty-as-null, -I [boolean]\nPreprocessing #3: Treat empty fields as null.\n\n' +
@@ -76,7 +76,6 @@ function dsv (defaults) {
 
     const addProvidedHeader = !_skipHeader && keys.length > 0
     let headerIsSet         = _skipHeader
-    let ignoreDataHeader    = _skipHeader
     const fillMissingValues = typeof _missingAs !== 'undefined'
 
     const preprocessingFs   = []
@@ -95,7 +94,7 @@ function dsv (defaults) {
     }
 
     return jsons => {
-      const err   = []
+      let err     = []
       let records = []
 
       if (!headerIsSet && addProvidedHeader) {
@@ -124,15 +123,12 @@ function dsv (defaults) {
       if (_fixedLength) {
         res     = controlFixedLength(records)
         if (res.err.length > 0) err = err.concat(res.err)
-        records = records.concat(res.records)
+        records = res.records
       }
-      
-      const start = ignoreDataHeader ? 1 : 0
-      if (ignoreDataHeader) ignoreDataHeader = false
       
       let str = ''
 
-      for (let i = start; i < records.length; i++) {
+      for (let i = 0; i < records.length; i++) {
         let record = records[i]
         record     = preprocessingF(record)
 
@@ -221,11 +217,36 @@ function dsv (defaults) {
     }
 
     function controlFixedLength (records) {
-      return {err: [], records}
+      const err      = []
+      const records2 = []
+
+      for (let i = 0; i < records.length; i++) {
+        const record = records[i]
+
+        if (keys.length === 0) keys = record
+
+        if (headerIsSet && keys.length !== record.length) {
+          const msg  = {msg: 'Number of values does not match number of headers'}
+          const line = verbose > 0 ? {line: -1}                                                             : {}
+          const info = verbose > 1 ? {info: `values [${record.join(',')}] and headers [${keys.join(',')}]`} : {}
+          
+          err.push(Object.assign(msg, line, info))
+        } else {
+          records2.push(record)
+        }
+      }
+
+      return {err, records: records2}
     }
 
     function removeWhitespaces (record) {
-      return record
+      const record2 = []
+      for (let i = 0; i < record.length; i++) {
+        const value  = record[i]
+        const value2 = value.replace(/^\s+|\s+$/g, '')
+        record2.push(value2)
+      }
+      return record2
     }
 
     function emptyToNull (record) {
