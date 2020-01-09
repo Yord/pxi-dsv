@@ -36,7 +36,7 @@ function dsv (defaults) {
       mtrimWhitespaces,      trimWhitespaces,      W,
       memptyAsNull,          emptyAsNull,          I,
       mskipNull,             skipNull,             N,
-      mmissingAs,            missingAs,            M
+      mnullAs,               nullAs,               A
     } = argv
 
     const _recordSeparator = mrecordSeparator      || recordSeparator      || R || defaults.recordSeparator
@@ -50,7 +50,11 @@ function dsv (defaults) {
     const _trimWhitespaces = mtrimWhitespaces      || trimWhitespaces      || W || defaults.trimWhitespaces || false
     const _emptyAsNull     = memptyAsNull          || emptyAsNull          || I || defaults.emptyAsNull     || false
     const _skipNull        = mskipNull             || skipNull             || N || defaults.skipNull        || false
-    const _missingAs       = mmissingAs            || missingAs            || M || defaults.missingAs       || undefined
+    const _nullAs          = typeof mnullAs         !== 'undefined' ? mnullAs :
+                             typeof nullAs          !== 'undefined' ? nullAs  :
+                             typeof A               !== 'undefined' ? A       :
+                             typeof defaults.nullAs !== 'undefined' ? defaults.nullAs
+                                                                    : undefined
 
     const missingOptions = [
       handleMissingOption(_recordSeparator, 'mrecordSeparator, recordSeparator or R', argv),
@@ -76,13 +80,13 @@ function dsv (defaults) {
 
     const addProvidedHeader = !_skipHeader && keys.length > 0
     let headerIsSet         = _skipHeader
-    const fillMissingValues = typeof _missingAs !== 'undefined'
+    const fillMissingValues = typeof _nullAs !== 'undefined'
 
     const preprocessingFs   = []
     if (_trimWhitespaces)  preprocessingFs.push(removeWhitespaces)
     if (_emptyAsNull)      preprocessingFs.push(emptyToNull)
     if (_skipNull)         preprocessingFs.push(removeNulls)
-    if (fillMissingValues) preprocessingFs.push(fillUpRecord)
+    if (fillMissingValues) preprocessingFs.push(replaceNulls)
 
     const preprocessingF = record => {
       let record2 = record
@@ -269,10 +273,10 @@ function dsv (defaults) {
       return record2
     }
 
-    function fillUpRecord (record) {
       // use _missingAs
       _missingAs
 
+    function replaceNulls (record) {
       return record
     }
   }
