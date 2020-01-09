@@ -35,22 +35,22 @@ function dsv (defaults) {
       mfixedLength,          fixedLength,          F,
       mtrimWhitespaces,      trimWhitespaces,      W,
       memptyAsNull,          emptyAsNull,          I,
-      mskipNullAndUndefined, skipNullAndUndefined, N,
+      mskipNull,             skipNull,             N,
       mmissingAs,            missingAs,            M
     } = argv
 
-    const _recordSeparator      = mrecordSeparator      || recordSeparator      || R || defaults.recordSeparator
-    const _delimiter            = mdelimiter            || delimiter            || D || defaults.delimiter
-    const _quote                = mquote                || quote                || Q || defaults.quote
-    const _escape               = mescape               || escape               || C || defaults.escape
-    const _header               = mheader               || header               || H || defaults.header
-    const _skipHeader           = mskipHeader           || skipHeader           || S || defaults.skipHeader           || false
-    const _allowListValues      = mallowListValues      || allowListValues      || L || defaults.allowListValues      || false
-    const _fixedLength          = mfixedLength          || fixedLength          || F || defaults.fixedLength          || false
-    const _trimWhitespaces      = mtrimWhitespaces      || trimWhitespaces      || W || defaults.trimWhitespaces      || false
-    const _emptyAsNull          = memptyAsNull          || emptyAsNull          || I || defaults.emptyAsNull          || false
-    const _skipNullAndUndefined = mskipNullAndUndefined || skipNullAndUndefined || N || defaults.skipNullAndUndefined || false
-    const _missingAs            = mmissingAs            || missingAs            || M || defaults.missingAs            || undefined
+    const _recordSeparator = mrecordSeparator      || recordSeparator      || R || defaults.recordSeparator
+    const _delimiter       = mdelimiter            || delimiter            || D || defaults.delimiter
+    const _quote           = mquote                || quote                || Q || defaults.quote
+    const _escape          = mescape               || escape               || C || defaults.escape
+    const _header          = mheader               || header               || H || defaults.header
+    const _skipHeader      = mskipHeader           || skipHeader           || S || defaults.skipHeader      || false
+    const _allowListValues = mallowListValues      || allowListValues      || L || defaults.allowListValues || false
+    const _fixedLength     = mfixedLength          || fixedLength          || F || defaults.fixedLength     || false
+    const _trimWhitespaces = mtrimWhitespaces      || trimWhitespaces      || W || defaults.trimWhitespaces || false
+    const _emptyAsNull     = memptyAsNull          || emptyAsNull          || I || defaults.emptyAsNull     || false
+    const _skipNull        = mskipNull             || skipNull             || N || defaults.skipNull        || false
+    const _missingAs       = mmissingAs            || missingAs            || M || defaults.missingAs       || undefined
 
     const missingOptions = [
       handleMissingOption(_recordSeparator, 'mrecordSeparator, recordSeparator or R', argv),
@@ -79,10 +79,10 @@ function dsv (defaults) {
     const fillMissingValues = typeof _missingAs !== 'undefined'
 
     const preprocessingFs   = []
-    if (_trimWhitespaces)      preprocessingFs.push(removeWhitespaces)
-    if (_emptyAsNull)          preprocessingFs.push(emptyToNull)
-    if (_skipNullAndUndefined) preprocessingFs.push(removeNulls)
-    if (fillMissingValues)     preprocessingFs.push(fillUpRecord)
+    if (_trimWhitespaces)  preprocessingFs.push(removeWhitespaces)
+    if (_emptyAsNull)      preprocessingFs.push(emptyToNull)
+    if (_skipNull)         preprocessingFs.push(removeNulls)
+    if (fillMissingValues) preprocessingFs.push(fillUpRecord)
 
     const preprocessingF = record => {
       let record2 = record
