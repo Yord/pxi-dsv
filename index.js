@@ -6,7 +6,7 @@ module.exports = {
     require('./src/deserializers/tsv'),
     require('./src/deserializers/ssv')
   ],
-  applicators:   [],
+  appliers:      [],
   serializers:   [
     require('./src/serializers/dsv'),
     require('./src/serializers/csv'),
