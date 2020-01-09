@@ -48,7 +48,7 @@ This plugin comes with the following `pxi` extensions:
 | `csv` deserializer | Deserializes comma-separated values files. Follows RFC4180 for the most part. Uses `dsv` internally and accepts the same options.                                       |
 | `tsv` deserializer | Deserializes tab-separated values files. Useful for processing tabular database and spreadsheet data. Uses `dsv` internally and accepts the same options.               |
 | `ssv` deserializer | Deserializes space-separated values files. Useful for processing command line output from `ls`, `ps`, and the like. Uses `dsv` internally and accepts the same options. |
-| `csv` marshaller   | Serializes JSON into CSV format.                                                                                                                                  |
+| `csv` serializer   | Serializes JSON into CSV format.                                                                                                                                  |
 
 ## Known Limitations
 
@@ -66,7 +66,7 @@ This plugin has the following limitations:
 3.  The `csv` deserializer does not appear to support multi-line values, aka values with line breaks inside quotes.
     Actually, no `pxi` deserializer could support this feature alone, since it is the chunkers' responsibility to chunk data for deserializers.
     Currently there is no dedicated chunker that supports chunking multi-line csv files, but there may be in the future.
-4.  Currently, the plugin only supports marshallers for `csv`.
+4.  Currently, the plugin only supports serializers for `csv`.
     This will change in the upcoming versions.
 
 ## Reporting Issues
