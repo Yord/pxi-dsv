@@ -261,7 +261,12 @@ function dsv (defaults) {
     }
 
     function removeNulls (record) {
-      return record
+      const record2 = []
+      for (let i = 0; i < record.length; i++) {
+        const value = record[i]
+        if (value !== null && typeof value !== 'undefined') record2.push(value)
+      }
+      return record2
     }
 
     function fillUpRecord (record) {
