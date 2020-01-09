@@ -635,7 +635,7 @@ test('marshalls a dsv file and skip null and undefined values', () => {
           oneof(...quoteOrEscape).chain(quote =>
             oneof(...quoteOrEscape).chain(escape =>
               unicodeStringJsonObjectListFixedLength([delimiter, quote, escape], 3).chain(jsons => 
-                integer(0, Object.keys(jsons[0]).length).map(noOfNulls => {
+                integer(0, Object.keys(jsons[0]).length - 1).map(noOfNulls => {
                   const err = []
 
                   const _jsons = (
@@ -646,7 +646,7 @@ test('marshalls a dsv file and skip null and undefined values', () => {
                         return keys.reduce(
                           (acc, key, i) => ({
                             ...acc,
-                            [key]: i <= keys.length - noOfNulls ? json[key] : n
+                            [key]: i < keys.length - noOfNulls ? json[key] : n
                           }),
                           {}
                         )
@@ -663,7 +663,7 @@ test('marshalls a dsv file and skip null and undefined values', () => {
                     .concat(Object.values(_jsons[0]).join(delimiter))
                     .concat(
                       _jsons.slice(1).map(json =>
-                        Object.values(json).slice(0, Object.keys(json).length - noOfNulls + 1).join(delimiter)
+                        Object.values(json).slice(0, Object.keys(json).length - noOfNulls).join(delimiter)
                       )
                     )
                     .join(recordSeparator) + recordSeparator
