@@ -35,22 +35,26 @@ function dsv (defaults) {
       mfixedLength,          fixedLength,          F,
       mtrimWhitespaces,      trimWhitespaces,      W,
       memptyAsNull,          emptyAsNull,          I,
-      mskipNullAndUndefined, skipNullAndUndefined, N,
-      mmissingAs,            missingAs,            M
+      mskipNull,             skipNull,             N,
+      mnullAs,               nullAs,               A
     } = argv
 
-    const _recordSeparator      = mrecordSeparator      || recordSeparator      || R || defaults.recordSeparator
-    const _delimiter            = mdelimiter            || delimiter            || D || defaults.delimiter
-    const _quote                = mquote                || quote                || Q || defaults.quote
-    const _escape               = mescape               || escape               || C || defaults.escape
-    const _header               = mheader               || header               || H || defaults.header
-    const _skipHeader           = mskipHeader           || skipHeader           || S || defaults.skipHeader           || false
-    const _allowListValues      = mallowListValues      || allowListValues      || L || defaults.allowListValues      || false
-    const _fixedLength          = mfixedLength          || fixedLength          || F || defaults.fixedLength          || false
-    const _trimWhitespaces      = mtrimWhitespaces      || trimWhitespaces      || W || defaults.trimWhitespaces      || false
-    const _emptyAsNull          = memptyAsNull          || emptyAsNull          || I || defaults.emptyAsNull          || false
-    const _skipNullAndUndefined = mskipNullAndUndefined || skipNullAndUndefined || N || defaults.skipNullAndUndefined || false
-    const _missingAs            = mmissingAs            || missingAs            || M || defaults.missingAs            || undefined
+    const _recordSeparator = mrecordSeparator      || recordSeparator      || R || defaults.recordSeparator
+    const _delimiter       = mdelimiter            || delimiter            || D || defaults.delimiter
+    const _quote           = mquote                || quote                || Q || defaults.quote
+    const _escape          = mescape               || escape               || C || defaults.escape
+    const _header          = mheader               || header               || H || defaults.header
+    const _skipHeader      = mskipHeader           || skipHeader           || S || defaults.skipHeader      || false
+    const _allowListValues = mallowListValues      || allowListValues      || L || defaults.allowListValues || false
+    const _fixedLength     = mfixedLength          || fixedLength          || F || defaults.fixedLength     || false
+    const _trimWhitespaces = mtrimWhitespaces      || trimWhitespaces      || W || defaults.trimWhitespaces || false
+    const _emptyAsNull     = memptyAsNull          || emptyAsNull          || I || defaults.emptyAsNull     || false
+    const _skipNull        = mskipNull             || skipNull             || N || defaults.skipNull        || false
+    const _nullAs          = typeof mnullAs         !== 'undefined' ? mnullAs :
+                             typeof nullAs          !== 'undefined' ? nullAs  :
+                             typeof A               !== 'undefined' ? A       :
+                             typeof defaults.nullAs !== 'undefined' ? defaults.nullAs
+                                                                    : undefined
 
     const missingOptions = [
       handleMissingOption(_recordSeparator, 'mrecordSeparator, recordSeparator or R', argv),
@@ -76,13 +80,13 @@ function dsv (defaults) {
 
     const addProvidedHeader = !_skipHeader && keys.length > 0
     let headerIsSet         = _skipHeader
-    const fillMissingValues = typeof _missingAs !== 'undefined'
+    const fillMissingValues = typeof _nullAs !== 'undefined'
 
     const preprocessingFs   = []
-    if (_trimWhitespaces)      preprocessingFs.push(removeWhitespaces)
-    if (_emptyAsNull)          preprocessingFs.push(emptyToNull)
-    if (_skipNullAndUndefined) preprocessingFs.push(removeNulls)
-    if (fillMissingValues)     preprocessingFs.push(fillUpRecord)
+    if (_trimWhitespaces)  preprocessingFs.push(removeWhitespaces)
+    if (_emptyAsNull)      preprocessingFs.push(emptyToNull)
+    if (_skipNull)         preprocessingFs.push(removeNulls)
+    if (fillMissingValues) preprocessingFs.push(replaceNulls)
 
     const preprocessingF = record => {
       let record2 = record
@@ -155,7 +159,8 @@ function dsv (defaults) {
 
           for (let j = 0; j < keys.length; j++) {
             const key = keys[j]
-            record.push(json[key] || null)
+            const value = json[key]
+            record.push(value)
           }
         }
 
@@ -170,16 +175,16 @@ function dsv (defaults) {
             record2.push(field)
           } else if (typeof field === 'number') {
             if (Number.isNaN(field)) {
-              record2.push('null')
+              record2.push(null)
             } else {
               record2.push(field.toString())
             }
           } else if (typeof field === 'boolean') {
-            record2.push(field.toString)
+            record2.push(field.toString())
           } else if (typeof field === 'undefined') {
-            record2.push('null')
+            record2.push(null)
           } else if (field === null) {
-            record2.push('null')
+            record2.push(null)
           } else if (Array.isArray(field)) {
             if (_allowListValues) {
               // in case of string values
@@ -250,17 +255,34 @@ function dsv (defaults) {
     }
 
     function emptyToNull (record) {
-      return record
+      const record2 = []
+      for (let i = 0; i < record.length; i++) {
+        const value  = record[i]
+        const value2 = value === '' ? null : value
+        record2.push(value2)
+      }
+      return record2
     }
 
     function removeNulls (record) {
-      return record
+      const record2 = []
+      for (let i = 0; i < record.length; i++) {
+        const value = record[i]
+        if (value !== null && typeof value !== 'undefined') record2.push(value)
+      }
+      return record2
     }
 
-    function fillUpRecord (record) {
-      // use _missingAs
-      _missingAs
-
+    function replaceNulls (record) {
+      if (headerIsSet) {
+        const record2 = []
+        for (let i = 0; i < keys.length; i++) {
+          const value = record[i]
+          if (value === null || typeof value === 'undefined') record2.push(_nullAs)
+          else record2.push(value)
+        }
+        return record2
+      }
       return record
     }
   }

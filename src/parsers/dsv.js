@@ -179,14 +179,16 @@ function dsv (defaults) {
             headerIsSet      = true
             ignoreDataHeader = false
           } else if (returnTypeObject) {
-            const json    = {}
+            const json     = {}
             
-            const until   = Math.min(keysLength, values.length)
+            const until    = Math.max(keysLength, values.length)
   
             for (let j = 0; j < until; j++) {
-              const key   = keys[j]
-              const value = values[j]
-              json[key]   = value
+              const key    = keys[j]
+              const value  = values[j]
+              const key2   = typeof key   !== 'undefined' ? key   : '#' + j
+              const value2 = typeof value !== 'undefined' ? value : null
+              json[key2]   = value2
             }
   
             jsons.push(json)

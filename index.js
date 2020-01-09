@@ -9,6 +9,7 @@ module.exports = {
   applicators: [],
   marshallers: [
     require('./src/marshallers/dsv'),
-    require('./src/marshallers/csv')
+    require('./src/marshallers/csv'),
+    require('./src/marshallers/csv2')
   ]
 }
