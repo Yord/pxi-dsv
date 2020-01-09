@@ -3,7 +3,7 @@ const handleMissingOption = require('../shared/handleMissingOption')
 module.exports = {
   name: 'dsv',
   desc: (
-    'is a delimiter-separated values marshaller:\n\n' +
+    'is a delimiter-separated values serializer:\n\n' +
     '--mrecord-separator, --record-separator, -R [char]\nCharacter used to separate records.\n\n' +
     '--mdelimiter, --delimiter, -D [char]\nDelimiter used to separate values.\n\n' +
     '--mquote, --quote, -Q [char]\nCharacter used to quote strings.\n\n' +

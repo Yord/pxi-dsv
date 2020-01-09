@@ -1,10 +1,10 @@
 const dsv = require('./dsv')
 
 module.exports = {
-  name: 'tsv',
+  name: 'csv',
   desc: (
-    'is a tab-separated values parser. It is a variant of dsv, but differs in its default values: ' +
-    "--delimiter is set to '\t' (tab), --quote and --escape to '\"' (but should not be used in tsv files), " +
+    'is a comma-separated values deserializer. It is a variant of dsv, but differs in its default values: ' +
+    "--delimiter is set to ',', --quote and --escape to '\"', " +
     'and the --fixed-length flag is turned on by default. ' +
     'To turn it off, csv supports the following additional options:\n\n' +
     '--no-pfixed-length, --no-fixed-length, -F [boolean]\nTurns off --pfixed-length, --fixed-length, and -F.\n'
@@ -15,7 +15,7 @@ module.exports = {
     const fixedLength = !(noPfixedLength || noFixedLength || F || false)
 
     return dsv.dsv({
-      delimiter:   '\t',
+      delimiter:   ',',
       quote:       '"',
       escape:      '"',
       header:      '[]'

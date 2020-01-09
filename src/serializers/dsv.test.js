@@ -1,13 +1,13 @@
 const {array, assert, base64, boolean, constant, integer, oneof, property} = require('fast-check')
 const unicodeStringJsonObjectListFixedLength = require('../shared/unicodeStringJsonObjectListFixedLength')
 const whitespace = require('../shared/whitespace')
-const {dsv: marshallerFactory} = require('./dsv')
+const {dsv: serializerFactory} = require('./dsv')
 
 const recordSeparators = ['\n', '\r\n', '|', '@'].map(constant)
 const delimiters       = [',', ';', '.', '/', '-', '+', '$', '#', '!'].map(constant)
 const quoteOrEscape    = ["'", '"', '`', '\\'].map(constant)
 
-test('marshals a dsv file with missing options and verbose 0', () => {
+test('serializes a dsv file with missing options and verbose 0', () => {
   const argv                = {verbose: 0}
 
   const err                 = [
@@ -18,7 +18,7 @@ test('marshals a dsv file with missing options and verbose 0', () => {
     {msg: 'Please provide mheader, header or H option'}
   ]
 
-  const jsonsTokensDefaults = (
+  const jsonsStrDefaults = (
     boolean().chain(fixedLength =>
       unicodeStringJsonObjectListFixedLength([]).map(jsons => {
         const str = ''
@@ -35,9 +35,9 @@ test('marshals a dsv file with missing options and verbose 0', () => {
   )
   
   assert(
-    property(jsonsTokensDefaults, ({jsons, str, defaults}) =>
+    property(jsonsStrDefaults, ({jsons, str, defaults}) =>
       expect(
-        marshallerFactory(defaults)(argv)(jsons)
+        serializerFactory(defaults)(argv)(jsons)
       ).toStrictEqual(
         {err, str}
       )
@@ -45,7 +45,7 @@ test('marshals a dsv file with missing options and verbose 0', () => {
   )
 })
 
-test('marshals a dsv file with missing options and verbose 1', () => {
+test('serializes a dsv file with missing options and verbose 1', () => {
   const argv                = {verbose: 1}
 
   const err                 = [
@@ -75,7 +75,7 @@ test('marshals a dsv file with missing options and verbose 1', () => {
   assert(
     property(jsonsStrDefaults, ({jsons, str, defaults}) =>
       expect(
-        marshallerFactory(defaults)(argv)(jsons)
+        serializerFactory(defaults)(argv)(jsons)
       ).toStrictEqual(
         {err, str}
       )
@@ -83,7 +83,7 @@ test('marshals a dsv file with missing options and verbose 1', () => {
   )
 })
 
-test('marshals a dsv file with missing options and verbose 2', () => {
+test('serializes a dsv file with missing options and verbose 2', () => {
   const argv                = {verbose: 2}
 
   const err                 = [
@@ -113,7 +113,7 @@ test('marshals a dsv file with missing options and verbose 2', () => {
   assert(
     property(jsonsStrDefaults, ({jsons, str, defaults}) =>
       expect(
-        marshallerFactory(defaults)(argv)(jsons)
+        serializerFactory(defaults)(argv)(jsons)
       ).toStrictEqual(
         {err, str}
       )
@@ -121,7 +121,7 @@ test('marshals a dsv file with missing options and verbose 2', () => {
   )
 })
 
-test('marshalls a dsv file without provided header', () => {
+test('serializes a dsv file without provided header', () => {
   const err                 = []
 
   const argv                = {verbose: 0}
@@ -162,7 +162,7 @@ test('marshalls a dsv file without provided header', () => {
   assert(
     property(jsonsStrDefaults, ({jsons, str, defaults}) =>
       expect(
-        marshallerFactory(defaults)(argv)(jsons)
+        serializerFactory(defaults)(argv)(jsons)
       ).toStrictEqual(
         {err, str}
       )
@@ -170,7 +170,7 @@ test('marshalls a dsv file without provided header', () => {
   )
 })
 
-test('marshalls a dsv file with provided header', () => {
+test('serializes a dsv file with provided header', () => {
   const err                 = []
 
   const argv                = {verbose: 0}
@@ -219,7 +219,7 @@ test('marshalls a dsv file with provided header', () => {
   assert(
     property(jsonsStrDefaults, ({jsons, str, defaults}) =>
       expect(
-        marshallerFactory(defaults)(argv)(jsons)
+        serializerFactory(defaults)(argv)(jsons)
       ).toStrictEqual(
         {err, str}
       )
@@ -227,7 +227,7 @@ test('marshalls a dsv file with provided header', () => {
   )
 })
 
-test('marshalls a dsv file with provided header and skipHeader', () => {
+test('serializes a dsv file with provided header and skipHeader', () => {
   const err                 = []
 
   const argv                = {verbose: 0}
@@ -276,7 +276,7 @@ test('marshalls a dsv file with provided header and skipHeader', () => {
   assert(
     property(jsonsStrDefaults, ({jsons, str, defaults}) =>
       expect(
-        marshallerFactory(defaults)(argv)(jsons)
+        serializerFactory(defaults)(argv)(jsons)
       ).toStrictEqual(
         {err, str}
       )
@@ -284,7 +284,7 @@ test('marshalls a dsv file with provided header and skipHeader', () => {
   )
 })
 
-test('marshalls a dsv file without provided header and skipHeader', () => {
+test('serializes a dsv file without provided header and skipHeader', () => {
   const err                 = []
 
   const argv                = {verbose: 0}
@@ -326,7 +326,7 @@ test('marshalls a dsv file without provided header and skipHeader', () => {
   assert(
     property(jsonsStrDefaults, ({jsons, str, defaults}) =>
       expect(
-        marshallerFactory(defaults)(argv)(jsons)
+        serializerFactory(defaults)(argv)(jsons)
       ).toStrictEqual(
         {err, str}
       )
@@ -334,7 +334,7 @@ test('marshalls a dsv file without provided header and skipHeader', () => {
   )
 })
 
-test('marshalls a dsv file with variable values lengths and the fixed length option', () => {
+test('serializes a dsv file with variable values lengths and the fixed length option', () => {
   const argv  = {verbose: 0}
 
   const jsonsStrDefaultsErr = (
@@ -403,7 +403,7 @@ test('marshalls a dsv file with variable values lengths and the fixed length opt
   assert(
     property(jsonsStrDefaultsErr, ({jsons, str, defaults, err}) =>
       expect(
-        marshallerFactory(defaults)(argv)(jsons)
+        serializerFactory(defaults)(argv)(jsons)
       ).toStrictEqual(
         {err, str}
       )
@@ -411,7 +411,7 @@ test('marshalls a dsv file with variable values lengths and the fixed length opt
   )
 })
 
-test('marshalls a dsv file with variable values lengths and the fixed length option with lines', () => {
+test('serializes a dsv file with variable values lengths and the fixed length option with lines', () => {
   const argv  = {verbose: 1}
 
   const jsonsStrDefaultsErr = (
@@ -480,7 +480,7 @@ test('marshalls a dsv file with variable values lengths and the fixed length opt
   assert(
     property(jsonsStrDefaultsErr, ({jsons, str, defaults, err}) =>
       expect(
-        marshallerFactory(defaults)(argv)(jsons)
+        serializerFactory(defaults)(argv)(jsons)
       ).toStrictEqual(
         {err, str}
       )
@@ -488,7 +488,7 @@ test('marshalls a dsv file with variable values lengths and the fixed length opt
   )
 })
 
-test('parses a dsv file and trim whitespaces', () => {
+test('deserializes a dsv file and trim whitespaces', () => {
   const err                 = []
 
   const argv                = {verbose: 0}
@@ -542,7 +542,7 @@ test('parses a dsv file and trim whitespaces', () => {
   assert(
     property(jsonsStrDefaults, ({jsons, str, defaults}) =>
       expect(
-        marshallerFactory(defaults)(argv)(jsons)
+        serializerFactory(defaults)(argv)(jsons)
       ).toStrictEqual(
         {err, str}
       )
@@ -550,10 +550,10 @@ test('parses a dsv file and trim whitespaces', () => {
   )
 })
 
-test('marshalls a dsv file and convert empty values to nulls', () => {
+test('serializes a dsv file and convert empty values to nulls', () => {
   const argv  = {verbose: 0}
 
-  const jsonsTokensDefaultsErr = (
+  const jsonsChunksDefaultsErr = (
     oneof(...recordSeparators).chain(recordSeparator =>
       oneof(...delimiters).chain(delimiter =>
         oneof(...quoteOrEscape).chain(quote =>
@@ -615,9 +615,9 @@ test('marshalls a dsv file and convert empty values to nulls', () => {
   )
   
   assert(
-    property(jsonsTokensDefaultsErr, ({jsons, str, defaults, err}) =>
+    property(jsonsChunksDefaultsErr, ({jsons, str, defaults, err}) =>
       expect(
-        marshallerFactory(defaults)(argv)(jsons)
+        serializerFactory(defaults)(argv)(jsons)
       ).toStrictEqual(
         {err, str}
       )
@@ -625,7 +625,7 @@ test('marshalls a dsv file and convert empty values to nulls', () => {
   )
 })
 
-test('marshalls a dsv file and skip null and undefined values', () => {
+test('serializes a dsv file and skip null and undefined values', () => {
   const argv  = {verbose: 0}
 
   const jsonsStrDefaultsErr = (
@@ -695,7 +695,7 @@ test('marshalls a dsv file and skip null and undefined values', () => {
   assert(
     property(jsonsStrDefaultsErr, ({jsons, str, defaults, err}) =>
       expect(
-        marshallerFactory(defaults)(argv)(jsons)
+        serializerFactory(defaults)(argv)(jsons)
       ).toStrictEqual(
         {err, str}
       )
@@ -703,7 +703,7 @@ test('marshalls a dsv file and skip null and undefined values', () => {
   )
 })
 
-test('marshalls a dsv file and fill missing values with a filling string', () => {
+test('serializes a dsv file and fill missing values with a filling string', () => {
   const argv  = {verbose: 0}
 
   const jsonsStrDefaultsErr = (
@@ -774,7 +774,7 @@ test('marshalls a dsv file and fill missing values with a filling string', () =>
   assert(
     property(jsonsStrDefaultsErr, ({jsons, str, defaults, err}) =>
       expect(
-        marshallerFactory(defaults)(argv)(jsons)
+        serializerFactory(defaults)(argv)(jsons)
       ).toStrictEqual(
         {err, str}
       )

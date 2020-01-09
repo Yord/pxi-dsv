@@ -1,31 +1,31 @@
 const {anything, array, assert, base64, boolean, constant, integer, oneof, property} = require('fast-check')
 const unicodeStringJsonObjectListFixedLength = require('../shared/unicodeStringJsonObjectListFixedLength')
 const whitespace = require('../shared/whitespace')
-const {dsv: parserFactory} = require('./dsv')
+const {dsv: deserializerFactory} = require('./dsv')
 
 const delimiters    = [',', ';', '.', '|', '/', '-', '+', '$', '#', '!'].map(constant)
 const quoteOrEscape = ["'", '"', '`', '\\'].map(constant)
 
-test('parses a dsv file without provided header', () => {
+test('deserializes a dsv file without provided header', () => {
   const err                 = []
 
   const argv                = {verbose: 0}
   const lines               = anything()
 
-  const jsonsTokensDefaults = (
+  const jsonsChunksDefaults = (
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
           boolean().chain(fixedLength =>
             unicodeStringJsonObjectListFixedLength([delimiter, quote, escape]).map(jsons => {
-              const tokens = (
+              const chunks = (
                 [Object.keys(jsons[0]).join(delimiter)]
                 .concat(jsons.map(json => Object.values(json).join(delimiter)))
               )
   
               return {
                 jsons,
-                tokens,
+                chunks,
                 defaults: {
                   delimiter,
                   quote,
@@ -48,9 +48,9 @@ test('parses a dsv file without provided header', () => {
   )
   
   assert(
-    property(lines, jsonsTokensDefaults, (lines, {jsons, tokens, defaults}) =>
+    property(lines, jsonsChunksDefaults, (lines, {jsons, chunks, defaults}) =>
       expect(
-        parserFactory(defaults)(argv)(tokens, lines)
+        deserializerFactory(defaults)(argv)(chunks, lines)
       ).toStrictEqual(
         {err, jsons}
       )
@@ -58,13 +58,13 @@ test('parses a dsv file without provided header', () => {
   )
 })
 
-test('parses a dsv file with provided header', () => {
+test('deserializes a dsv file with provided header', () => {
   const err                 = []
 
   const argv                = {verbose: 0}
   const lines               = anything()
 
-  const jsonsTokensDefaults = (
+  const jsonsChunksDefaults = (
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
@@ -81,7 +81,7 @@ test('parses a dsv file with provided header', () => {
                     )
                   )
                 )
-                const tokens = (
+                const chunks = (
                   [Object.keys(jsons[0]).join(delimiter)]
                   .concat(jsons.map(json => Object.values(json).join(delimiter)))
                 )
@@ -89,7 +89,7 @@ test('parses a dsv file with provided header', () => {
     
                 return {
                   jsons: _jsons,
-                  tokens,
+                  chunks,
                   defaults: {
                     delimiter,
                     quote,
@@ -113,9 +113,9 @@ test('parses a dsv file with provided header', () => {
   )
   
   assert(
-    property(lines, jsonsTokensDefaults, (lines, {jsons, tokens, defaults}) =>
+    property(lines, jsonsChunksDefaults, (lines, {jsons, chunks, defaults}) =>
       expect(
-        parserFactory(defaults)(argv)(tokens, lines)
+        deserializerFactory(defaults)(argv)(chunks, lines)
       ).toStrictEqual(
         {err, jsons}
       )
@@ -123,13 +123,13 @@ test('parses a dsv file with provided header', () => {
   )
 })
 
-test('parses a dsv file with provided header and skipHeader', () => {
+test('deserializes a dsv file with provided header and skipHeader', () => {
   const err                 = []
 
   const argv                = {verbose: 0}
   const lines               = anything()
 
-  const jsonsTokensDefaults = (
+  const jsonsChunksDefaults = (
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
@@ -141,7 +141,7 @@ test('parses a dsv file with provided header and skipHeader', () => {
                 const _jsons = jsons.map(json =>
                   Object.values(json).reduce((acc, value, i) => ({...acc, [keys[i]]: value}), {})
                 )
-                const tokens = (
+                const chunks = (
                   [Object.keys(jsons[0]).join(delimiter)]
                   .concat(jsons.map(json => Object.values(json).join(delimiter)))
                 )
@@ -149,7 +149,7 @@ test('parses a dsv file with provided header and skipHeader', () => {
     
                 return {
                   jsons: _jsons,
-                  tokens,
+                  chunks,
                   defaults: {
                     delimiter,
                     quote,
@@ -173,9 +173,9 @@ test('parses a dsv file with provided header and skipHeader', () => {
   )
   
   assert(
-    property(lines, jsonsTokensDefaults, (lines, {jsons, tokens, defaults}) =>
+    property(lines, jsonsChunksDefaults, (lines, {jsons, chunks, defaults}) =>
       expect(
-        parserFactory(defaults)(argv)(tokens, lines)
+        deserializerFactory(defaults)(argv)(chunks, lines)
       ).toStrictEqual(
         {err, jsons}
       )
@@ -183,27 +183,27 @@ test('parses a dsv file with provided header and skipHeader', () => {
   )
 })
 
-test('parses a dsv file without provided header and skipHeader', () => {
+test('deserializes a dsv file without provided header and skipHeader', () => {
   const err                 = []
 
   const argv                = {verbose: 0}
   const lines               = anything()
 
-  const jsonsTokensDefaults = (
+  const jsonsChunksDefaults = (
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
           boolean().chain(fixedLength =>
             unicodeStringJsonObjectListFixedLength([delimiter, quote, escape]).map(jsons => {
               const _jsons  = jsons.map(json => Object.values(json))
-              const tokens = (
+              const chunks = (
                 [Object.keys(jsons[0]).join(delimiter)]
                 .concat(jsons.map(json => Object.values(json).join(delimiter)))
               )
   
               return {
                 jsons: _jsons,
-                tokens,
+                chunks,
                 defaults: {
                   delimiter,
                   quote,
@@ -226,9 +226,9 @@ test('parses a dsv file without provided header and skipHeader', () => {
   )
   
   assert(
-    property(lines, jsonsTokensDefaults, (lines, {jsons, tokens, defaults}) =>
+    property(lines, jsonsChunksDefaults, (lines, {jsons, chunks, defaults}) =>
       expect(
-        parserFactory(defaults)(argv)(tokens, lines)
+        deserializerFactory(defaults)(argv)(chunks, lines)
       ).toStrictEqual(
         {err, jsons}
       )
@@ -236,17 +236,17 @@ test('parses a dsv file without provided header and skipHeader', () => {
   )
 })
 
-test('parses a dsv file with variable values lengths and the fixed length option', () => {
+test('deserializes a dsv file with variable values lengths and the fixed length option', () => {
   const argv  = {verbose: 0}
   const lines = anything()
 
-  const jsonsTokensDefaultsErr = (
+  const jsonsChunksDefaultsErr = (
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
           unicodeStringJsonObjectListFixedLength([delimiter, quote, escape], 2).chain(jsons => 
             integer(0, jsons.length - 1).map(noOfDeletes => {
-              const tokens = noOfDeletes === 0 ? (
+              const chunks = noOfDeletes === 0 ? (
                 [Object.keys(jsons[0]).join(delimiter)]
                 .concat(jsons.map(json => Object.values(json).join(delimiter)))
               ) : (
@@ -270,7 +270,7 @@ test('parses a dsv file with variable values lengths and the fixed length option
                 noOfDeletes,
                 err,
                 jsons: _jsons,
-                tokens,
+                chunks,
                 defaults: {
                   delimiter,
                   quote,
@@ -293,9 +293,9 @@ test('parses a dsv file with variable values lengths and the fixed length option
   )
   
   assert(
-    property(lines, jsonsTokensDefaultsErr, (lines, {jsons, tokens, defaults, err}) =>
+    property(lines, jsonsChunksDefaultsErr, (lines, {jsons, chunks, defaults, err}) =>
       expect(
-        parserFactory(defaults)(argv)(tokens, lines)
+        deserializerFactory(defaults)(argv)(chunks, lines)
       ).toStrictEqual(
         {err, jsons}
       )
@@ -303,17 +303,17 @@ test('parses a dsv file with variable values lengths and the fixed length option
   )
 })
 
-test('parses a dsv file with variable values lengths and the fixed length option with lines', () => {
+test('deserializes a dsv file with variable values lengths and the fixed length option with lines', () => {
   const argv  = {verbose: 1}
 
-  const jsonsTokensDefaultsErrLines = (
+  const jsonsChunksDefaultsErrLines = (
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
           unicodeStringJsonObjectListFixedLength([delimiter, quote, escape], 2).chain(jsons => 
             integer().chain(lineOffset =>
               integer(0, jsons.length - 1).map(noOfDeletes => {
-                const tokens = noOfDeletes === 0 ? (
+                const chunks = noOfDeletes === 0 ? (
                   [Object.keys(jsons[0]).join(delimiter)]
                   .concat(jsons.map(json => Object.values(json).join(delimiter)))
                 ) : (
@@ -328,7 +328,7 @@ test('parses a dsv file with variable values lengths and the fixed length option
                 const _jsons = jsons.slice(noOfDeletes, jsons.length)
   
                 const lines = []
-                for (let i = 0; i < tokens.length; i++) lines.push(lineOffset + i)
+                for (let i = 0; i < chunks.length; i++) lines.push(lineOffset + i)
 
                 const err = []
                 for (let i = 0; i < noOfDeletes; i++) {
@@ -343,7 +343,7 @@ test('parses a dsv file with variable values lengths and the fixed length option
                   lines,
                   err,
                   jsons: _jsons,
-                  tokens,
+                  chunks,
                   defaults: {
                     delimiter,
                     quote,
@@ -367,9 +367,9 @@ test('parses a dsv file with variable values lengths and the fixed length option
   )
   
   assert(
-    property(jsonsTokensDefaultsErrLines, ({jsons, tokens, defaults, err, lines}) =>
+    property(jsonsChunksDefaultsErrLines, ({jsons, chunks, defaults, err, lines}) =>
       expect(
-        parserFactory(defaults)(argv)(tokens, lines)
+        deserializerFactory(defaults)(argv)(chunks, lines)
       ).toStrictEqual(
         {err, jsons}
       )
@@ -377,17 +377,17 @@ test('parses a dsv file with variable values lengths and the fixed length option
   )
 })
 
-test('parses a dsv file with variable values lengths and the fixed length option with lines and info', () => {
+test('deserializes a dsv file with variable values lengths and the fixed length option with lines and info', () => {
   const argv  = {verbose: 2}
 
-  const jsonsTokensDefaultsErrLines = (
+  const jsonsChunksDefaultsErrLines = (
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
           unicodeStringJsonObjectListFixedLength([delimiter, quote, escape], 2).chain(jsons => 
             integer().chain(lineOffset =>
               integer(0, jsons.length - 1).map(noOfDeletes => {
-                const tokens = noOfDeletes === 0 ? (
+                const chunks = noOfDeletes === 0 ? (
                   [Object.keys(jsons[0]).join(delimiter)]
                   .concat(jsons.map(json => Object.values(json).join(delimiter)))
                 ) : (
@@ -402,7 +402,7 @@ test('parses a dsv file with variable values lengths and the fixed length option
                 const _jsons = jsons.slice(noOfDeletes, jsons.length)
   
                 const lines = []
-                for (let i = 0; i < tokens.length; i++) lines.push(lineOffset + i)
+                for (let i = 0; i < chunks.length; i++) lines.push(lineOffset + i)
 
                 const err = []
                 for (let i = 0; i < noOfDeletes; i++) {
@@ -420,7 +420,7 @@ test('parses a dsv file with variable values lengths and the fixed length option
                   lines,
                   err,
                   jsons: _jsons,
-                  tokens,
+                  chunks,
                   defaults: {
                     delimiter,
                     quote,
@@ -444,9 +444,9 @@ test('parses a dsv file with variable values lengths and the fixed length option
   )
   
   assert(
-    property(jsonsTokensDefaultsErrLines, ({jsons, tokens, defaults, err, lines}) =>
+    property(jsonsChunksDefaultsErrLines, ({jsons, chunks, defaults, err, lines}) =>
       expect(
-        parserFactory(defaults)(argv)(tokens, lines)
+        deserializerFactory(defaults)(argv)(chunks, lines)
       ).toStrictEqual(
         {err, jsons}
       )
@@ -454,13 +454,13 @@ test('parses a dsv file with variable values lengths and the fixed length option
   )
 })
 
-test('parses a dsv file and trim whitespaces', () => {
+test('deserializes a dsv file and trim whitespaces', () => {
   const err                 = []
 
   const argv                = {verbose: 0}
   const lines               = anything()
 
-  const jsonsTokensDefaults = (
+  const jsonsChunksDefaults = (
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
@@ -474,14 +474,14 @@ test('parses a dsv file and trim whitespaces', () => {
                   )
                 })
 
-                const tokens = (
+                const chunks = (
                   [Object.keys(_jsons[0]).map(key => ws + key + ws).join(delimiter)]
                   .concat(_jsons.map(json => Object.values(json).map(value => ws + value + ws).join(delimiter)))
                 )
 
                 return {
                   jsons: _jsons,
-                  tokens,
+                  chunks,
                   defaults: {
                     delimiter,
                     quote,
@@ -505,9 +505,9 @@ test('parses a dsv file and trim whitespaces', () => {
   )
   
   assert(
-    property(lines, jsonsTokensDefaults, (lines, {jsons, tokens, defaults}) =>
+    property(lines, jsonsChunksDefaults, (lines, {jsons, chunks, defaults}) =>
       expect(
-        parserFactory(defaults)(argv)(tokens, lines)
+        deserializerFactory(defaults)(argv)(chunks, lines)
       ).toStrictEqual(
         {err, jsons}
       )
@@ -515,19 +515,19 @@ test('parses a dsv file and trim whitespaces', () => {
   )
 })
 
-test('parses a dsv file and skip empty values', () => {
+test('deserializes a dsv file and skip empty values', () => {
   const err                 = []
 
   const argv                = {verbose: 0}
   const lines               = anything()
 
-  const jsonsTokensDefaults = (
+  const jsonsChunksDefaults = (
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
           boolean().chain(fixedLength =>
             unicodeStringJsonObjectListFixedLength([delimiter, quote, escape]).map(jsons => {
-              const tokens = (
+              const chunks = (
                 [Object.keys(jsons[0]).join(delimiter)]
                 .concat(jsons.map(json => Object.values(json).map(value => value === '' ? ' ' : value).join(delimiter)))
                 .concat(jsons.map(json => Object.values(json).map(() => '').join(delimiter)))
@@ -535,7 +535,7 @@ test('parses a dsv file and skip empty values', () => {
 
               return {
                 jsons,
-                tokens,
+                chunks,
                 defaults: {
                   delimiter,
                   quote,
@@ -558,9 +558,9 @@ test('parses a dsv file and skip empty values', () => {
   )
   
   assert(
-    property(lines, jsonsTokensDefaults, (lines, {jsons, tokens, defaults}) =>
+    property(lines, jsonsChunksDefaults, (lines, {jsons, chunks, defaults}) =>
       expect(
-        parserFactory(defaults)(argv)(tokens, lines)
+        deserializerFactory(defaults)(argv)(chunks, lines)
       ).toStrictEqual(
         {err, jsons}
       )
@@ -568,11 +568,11 @@ test('parses a dsv file and skip empty values', () => {
   )
 })
 
-test('parses a dsv file and convert empty values to nulls', () => {
+test('deserializes a dsv file and convert empty values to nulls', () => {
   const argv  = {verbose: 0}
   const lines = anything()
 
-  const jsonsTokensDefaultsErr = (
+  const jsonsChunksDefaultsErr = (
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
@@ -593,7 +593,7 @@ test('parses a dsv file and convert empty values to nulls', () => {
                   .concat(jsons.slice(noOfNulls))
                 )
 
-                const tokens = noOfNulls === 0 ? (
+                const chunks = noOfNulls === 0 ? (
                   [Object.keys(_jsons[0]).join(delimiter)]
                   .concat(_jsons.map(json => Object.values(json).join(delimiter)))
                 ) : (
@@ -610,7 +610,7 @@ test('parses a dsv file and convert empty values to nulls', () => {
                   noOfNulls,
                   err,
                   jsons: _jsons,
-                  tokens,
+                  chunks,
                   defaults: {
                     delimiter,
                     quote,
@@ -634,9 +634,9 @@ test('parses a dsv file and convert empty values to nulls', () => {
   )
   
   assert(
-    property(lines, jsonsTokensDefaultsErr, (lines, {jsons, tokens, defaults, err}) =>
+    property(lines, jsonsChunksDefaultsErr, (lines, {jsons, chunks, defaults, err}) =>
       expect(
-        parserFactory(defaults)(argv)(tokens, lines)
+        deserializerFactory(defaults)(argv)(chunks, lines)
       ).toStrictEqual(
         {err, jsons}
       )
@@ -644,11 +644,11 @@ test('parses a dsv file and convert empty values to nulls', () => {
   )
 })
 
-test('parses a dsv file and convert missing values (if #keys > #values) to nulls', () => {
+test('deserializes a dsv file and convert missing values (if #keys > #values) to nulls', () => {
   const argv  = {verbose: 0}
   const lines = anything()
 
-  const jsonsTokensDefaultsErr = (
+  const jsonsChunksDefaultsErr = (
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
@@ -668,7 +668,7 @@ test('parses a dsv file and convert missing values (if #keys > #values) to nulls
                 .concat(jsons.slice(noOfNulls))
               )
 
-              const tokens = noOfNulls === 0 ? (
+              const chunks = noOfNulls === 0 ? (
                 [Object.keys(_jsons[0]).join(delimiter)]
                 .concat(_jsons.map(json => Object.values(json).join(delimiter)))
               ) : (
@@ -685,7 +685,7 @@ test('parses a dsv file and convert missing values (if #keys > #values) to nulls
                 noOfNulls,
                 err,
                 jsons: _jsons,
-                tokens,
+                chunks,
                 defaults: {
                   delimiter,
                   quote,
@@ -708,9 +708,9 @@ test('parses a dsv file and convert missing values (if #keys > #values) to nulls
   )
   
   assert(
-    property(lines, jsonsTokensDefaultsErr, (lines, {jsons, tokens, defaults, err}) =>
+    property(lines, jsonsChunksDefaultsErr, (lines, {jsons, chunks, defaults, err}) =>
       expect(
-        parserFactory(defaults)(argv)(tokens, lines)
+        deserializerFactory(defaults)(argv)(chunks, lines)
       ).toStrictEqual(
         {err, jsons}
       )
@@ -718,11 +718,11 @@ test('parses a dsv file and convert missing values (if #keys > #values) to nulls
   )
 })
 
-test('parses a dsv file and skip null values', () => {
+test('deserializes a dsv file and skip null values', () => {
   const argv  = {verbose: 0}
   const lines = anything()
 
-  const jsonsTokensDefaultsErr = (
+  const jsonsChunksDefaultsErr = (
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
@@ -732,7 +732,7 @@ test('parses a dsv file and skip null values', () => {
 
               const _jsons = jsons.slice(noOfNulls)
 
-              const tokens = noOfNulls === 0 ? (
+              const chunks = noOfNulls === 0 ? (
                 [Object.keys(jsons[0]).join(delimiter)]
                 .concat(jsons.map(json => Object.values(json).join(delimiter)))
               ) : (
@@ -745,7 +745,7 @@ test('parses a dsv file and skip null values', () => {
                 noOfNulls,
                 err,
                 jsons: _jsons,
-                tokens,
+                chunks,
                 defaults: {
                   delimiter,
                   quote,
@@ -768,9 +768,9 @@ test('parses a dsv file and skip null values', () => {
   )
   
   assert(
-    property(lines, jsonsTokensDefaultsErr, (lines, {jsons, tokens, defaults, err}) =>
+    property(lines, jsonsChunksDefaultsErr, (lines, {jsons, chunks, defaults, err}) =>
       expect(
-        parserFactory(defaults)(argv)(tokens, lines)
+        deserializerFactory(defaults)(argv)(chunks, lines)
       ).toStrictEqual(
         {err, jsons}
       )
@@ -778,7 +778,7 @@ test('parses a dsv file and skip null values', () => {
   )
 })
 
-test('parses a dsv file with missing options and verbose 0', () => {
+test('deserializes a dsv file with missing options and verbose 0', () => {
   const argv                = {verbose: 0}
 
   const err                 = [
@@ -790,17 +790,17 @@ test('parses a dsv file with missing options and verbose 0', () => {
 
   const lines               = anything()
 
-  const jsonsTokensDefaults = (
+  const jsonsChunksDefaults = (
     boolean().chain(fixedLength =>
       unicodeStringJsonObjectListFixedLength([]).map(jsons => {
-        const tokens = (
+        const chunks = (
           [Object.keys(jsons[0]).join(',')]
           .concat(jsons.map(json => Object.values(json).join(',')))
         )
 
         return {
           jsons: [],
-          tokens,
+          chunks,
           defaults: {
             skipHeader:      false,
             fixedLength,
@@ -816,9 +816,9 @@ test('parses a dsv file with missing options and verbose 0', () => {
   )
   
   assert(
-    property(lines, jsonsTokensDefaults, (lines, {jsons, tokens, defaults}) =>
+    property(lines, jsonsChunksDefaults, (lines, {jsons, chunks, defaults}) =>
       expect(
-        parserFactory(defaults)(argv)(tokens, lines)
+        deserializerFactory(defaults)(argv)(chunks, lines)
       ).toStrictEqual(
         {err, jsons}
       )
@@ -826,7 +826,7 @@ test('parses a dsv file with missing options and verbose 0', () => {
   )
 })
 
-test('parses a dsv file with missing options and verbose 1', () => {
+test('deserializes a dsv file with missing options and verbose 1', () => {
   const argv                = {verbose: 1}
 
   const err                 = [
@@ -838,17 +838,17 @@ test('parses a dsv file with missing options and verbose 1', () => {
 
   const lines               = anything()
 
-  const jsonsTokensDefaults = (
+  const jsonsChunksDefaults = (
     boolean().chain(fixedLength =>
       unicodeStringJsonObjectListFixedLength([]).map(jsons => {
-        const tokens = (
+        const chunks = (
           [Object.keys(jsons[0]).join(',')]
           .concat(jsons.map(json => Object.values(json).join(',')))
         )
 
         return {
           jsons: [],
-          tokens,
+          chunks,
           defaults: {
             skipHeader:      false,
             fixedLength,
@@ -864,9 +864,9 @@ test('parses a dsv file with missing options and verbose 1', () => {
   )
   
   assert(
-    property(lines, jsonsTokensDefaults, (lines, {jsons, tokens, defaults}) =>
+    property(lines, jsonsChunksDefaults, (lines, {jsons, chunks, defaults}) =>
       expect(
-        parserFactory(defaults)(argv)(tokens, lines)
+        deserializerFactory(defaults)(argv)(chunks, lines)
       ).toStrictEqual(
         {err, jsons}
       )
@@ -874,7 +874,7 @@ test('parses a dsv file with missing options and verbose 1', () => {
   )
 })
 
-test('parses a dsv file with missing options and verbose 2', () => {
+test('deserializes a dsv file with missing options and verbose 2', () => {
   const argv                = {verbose: 2}
 
   const err                 = [
@@ -886,17 +886,17 @@ test('parses a dsv file with missing options and verbose 2', () => {
 
   const lines               = anything()
 
-  const jsonsTokensDefaults = (
+  const jsonsChunksDefaults = (
     boolean().chain(fixedLength =>
       unicodeStringJsonObjectListFixedLength([]).map(jsons => {
-        const tokens = (
+        const chunks = (
           [Object.keys(jsons[0]).join(',')]
           .concat(jsons.map(json => Object.values(json).join(',')))
         )
 
         return {
           jsons: [],
-          tokens,
+          chunks,
           defaults: {
             skipHeader:      false,
             fixedLength,
@@ -912,9 +912,9 @@ test('parses a dsv file with missing options and verbose 2', () => {
   )
   
   assert(
-    property(lines, jsonsTokensDefaults, (lines, {jsons, tokens, defaults}) =>
+    property(lines, jsonsChunksDefaults, (lines, {jsons, chunks, defaults}) =>
       expect(
-        parserFactory(defaults)(argv)(tokens, lines)
+        deserializerFactory(defaults)(argv)(chunks, lines)
       ).toStrictEqual(
         {err, jsons}
       )
@@ -928,20 +928,20 @@ test('removes quotes around values', () => {
   const argv                = {verbose: 0}
   const lines               = anything()
 
-  const jsonsTokensDefaults = (
+  const jsonsChunksDefaults = (
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
           boolean().chain(fixedLength =>
             unicodeStringJsonObjectListFixedLength([delimiter, quote, escape]).map(jsons => {
-              const tokens = (
+              const chunks = (
                 [Object.keys(jsons[0]).join(delimiter)]
                 .concat(jsons.map(json => Object.values(json).map(value => quote + value + quote).join(delimiter)))
               )
   
               return {
                 jsons,
-                tokens,
+                chunks,
                 defaults: {
                   delimiter,
                   quote,
@@ -964,9 +964,9 @@ test('removes quotes around values', () => {
   )
   
   assert(
-    property(lines, jsonsTokensDefaults, (lines, {jsons, tokens, defaults}) =>
+    property(lines, jsonsChunksDefaults, (lines, {jsons, chunks, defaults}) =>
       expect(
-        parserFactory(defaults)(argv)(tokens, lines)
+        deserializerFactory(defaults)(argv)(chunks, lines)
       ).toStrictEqual(
         {err, jsons}
       )
@@ -980,7 +980,7 @@ test('ignores delimiters and escaped quotes in quoted values', () => {
   const argv                = {verbose: 0}
   const lines               = anything()
 
-  const jsonsTokensDefaults = (
+  const jsonsChunksDefaults = (
     oneof(...delimiters).chain(delimiter =>
       oneof(...quoteOrEscape).chain(quote =>
         oneof(...quoteOrEscape).chain(escape =>
@@ -1006,7 +1006,7 @@ test('ignores delimiters and escaped quotes in quoted values', () => {
                 )
               )
               
-              const tokens = (
+              const chunks = (
                 [Object.keys(jsons[0]).join(delimiter)]
                 .concat(
                   jsons.map(json =>
@@ -1027,7 +1027,7 @@ test('ignores delimiters and escaped quotes in quoted values', () => {
 
               return {
                 jsons: _jsons,
-                tokens,
+                chunks,
                 defaults: {
                   delimiter,
                   quote,
@@ -1050,9 +1050,9 @@ test('ignores delimiters and escaped quotes in quoted values', () => {
   )
   
   assert(
-    property(lines, jsonsTokensDefaults, (lines, {jsons, tokens, defaults}) =>
+    property(lines, jsonsChunksDefaults, (lines, {jsons, chunks, defaults}) =>
       expect(
-        parserFactory(defaults)(argv)(tokens, lines)
+        deserializerFactory(defaults)(argv)(chunks, lines)
       ).toStrictEqual(
         {err, jsons}
       )

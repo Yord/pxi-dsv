@@ -1,6 +1,6 @@
 module.exports = {
   name: 'csv',
-  desc: 'is a csv marshaller.', // does not support embedded line breaks
+  desc: 'is a csv serializer.', // does not support embedded line breaks
   func: ({
     delimiter, mdelimiter, D,
     eol,       meol,       E,

@@ -1,15 +1,15 @@
 module.exports = {
-  lexers:      [],
-  parsers:     [
-    require('./src/parsers/dsv'),
-    require('./src/parsers/csv'),
-    require('./src/parsers/tsv'),
-    require('./src/parsers/ssv')
+  chunkers:      [],
+  deserializers: [
+    require('./src/deserializers/dsv'),
+    require('./src/deserializers/csv'),
+    require('./src/deserializers/tsv'),
+    require('./src/deserializers/ssv')
   ],
-  applicators: [],
-  marshallers: [
-    require('./src/marshallers/dsv'),
-    require('./src/marshallers/csv'),
-    require('./src/marshallers/csv2')
+  appliers:      [],
+  serializers:   [
+    require('./src/serializers/dsv'),
+    require('./src/serializers/csv'),
+    require('./src/serializers/csv2')
   ]
 }
