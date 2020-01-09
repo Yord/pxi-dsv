@@ -624,3 +624,81 @@ test('marshalls a dsv file and convert empty values to nulls', () => {
     )
   )
 })
+
+test('marshalls a dsv file and skip null and undefined values', () => {
+  const argv  = {verbose: 0}
+
+  const jsonsStrDefaultsErr = (
+    oneof(...[null, undefined].map(constant)).chain(n =>
+      oneof(...recordSeparators).chain(recordSeparator =>
+        oneof(...delimiters).chain(delimiter =>
+          oneof(...quoteOrEscape).chain(quote =>
+            oneof(...quoteOrEscape).chain(escape =>
+              unicodeStringJsonObjectListFixedLength([delimiter, quote, escape], 3).chain(jsons => 
+                integer(0, Object.keys(jsons[0]).length).map(noOfNulls => {
+                  const err = []
+
+                  const _jsons = (
+                    [jsons[0]]
+                    .concat(
+                      jsons.slice(1).map(json => {
+                        const keys = Object.keys(json)
+                        return keys.reduce(
+                          (acc, key, i) => ({
+                            ...acc,
+                            [key]: i <= keys.length - noOfNulls ? json[key] : n
+                          }),
+                          {}
+                        )
+                      })
+                    )
+                  )
+
+                  const str = noOfNulls === 0 ? (
+                    [Object.keys(_jsons[0]).join(delimiter)]
+                    .concat(_jsons.map(json => Object.values(json).join(delimiter)))
+                    .join(recordSeparator) + recordSeparator
+                  ) : (
+                    [Object.keys(_jsons[0]).join(delimiter)]
+                    .concat(Object.values(_jsons[0]).join(delimiter))
+                    .concat(
+                      _jsons.slice(1).map(json =>
+                        Object.values(json).slice(0, Object.keys(json).length - noOfNulls + 1).join(delimiter)
+                      )
+                    )
+                    .join(recordSeparator) + recordSeparator
+                  )
+                  
+                  return {
+                    noOfNulls,
+                    err,
+                    jsons: _jsons,
+                    str,
+                    defaults: {
+                      recordSeparator,
+                      delimiter,
+                      quote,
+                      escape,
+                      header:   '[]',
+                      skipNull: true
+                    }
+                  }
+                })
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+  
+  assert(
+    property(jsonsStrDefaultsErr, ({jsons, str, defaults, err}) =>
+      expect(
+        marshallerFactory(defaults)(argv)(jsons)
+      ).toStrictEqual(
+        {err, str}
+      )
+    )
+  )
+})
