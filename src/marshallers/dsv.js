@@ -156,7 +156,7 @@ function dsv (defaults) {
           for (let j = 0; j < keys.length; j++) {
             const key = keys[j]
             const value = json[key]
-            record.push(typeof value !== 'undefined' ? value : null)
+            record.push(value)
           }
         }
 
