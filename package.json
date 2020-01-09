@@ -1,6 +1,6 @@
 {
   "name": "pxi-dsv",
-  "version": "0.7.4",
+  "version": "0.8.0",
   "description": "Delimiter-separated values plugin for pxi (pixie), the small, fast and magic command-line data processor",
   "keywords": [
     "pxi",
