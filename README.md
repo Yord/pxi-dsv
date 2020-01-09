@@ -1,8 +1,8 @@
-![@pfx/dsv teaser][teaser]
+![pxi-dsv teaser][teaser]
 
-`@pfx/dsv` is a delimiter separated values plugin for `pf`, the fast and extensible command-line data (e.g. JSON) processor and transformer.
+🧚`pxi-dsv` is a delimiter-separated values plugin for `pxi` (pixie), the small, fast and magic command-line data processor.
 
-See the [`pf` github repository][pf] for more details!
+See the [`pxi` github repository][pxi] for more details!
 
 [![node version][shield-node]][node]
 [![npm version][shield-npm]][npm-package]
@@ -14,18 +14,20 @@ See the [`pf` github repository][pf] for more details!
 
 ## Installation
 
-> :ok_hand: `@pfx/dsv` comes preinstalled in `pf`. No installation necessary. If you still want to install it, proceed as described below.
+> :ok_hand: `pxi-dsv` comes preinstalled in `pxi`.
+> No installation necessary.
+> If you still want to install it, proceed as described below.
 
-`@pfx/dsv` is installed in `~/.pfrc/` as follows:
+`pxi-dsv` is installed in `~/.pxi/` as follows:
 
 ```bash
-npm install @pfx/dsv
+npm install pxi-dsv
 ```
 
-The plugin is included in `~/.pfrc/index.js` as follows:
+The plugin is included in `~/.pxi/index.js` as follows:
 
 ```js
-const dsv = require('@pfx/dsv')
+const dsv = require('pxi-dsv')
 
 module.exports = {
   plugins:  [dsv],
@@ -34,11 +36,11 @@ module.exports = {
 }
 ```
 
-For a much more detailed description, see the [`.pfrc` module documentation][pfrc-module].
+For a much more detailed description, see the [`.pxi` module documentation][pxi-module].
 
 ## Extensions
 
-This plugin comes with the following `pf` extensions:
+This plugin comes with the following `pxi` extensions:
 
 |                  | Description                                                                                                                                                       |
 |------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -62,7 +64,7 @@ This plugin has the following limitations:
     This means, the current `tsv` implementation works just fine, but a dedicated implementation should be more performant.
     A dedicated implementation may come at some time in the future.
 3.  The `csv` parser does not appear to support multi-line values, aka values with line breaks inside quotes.
-    Actually, no `pf` parser could support this feature alone, since it is the lexers' responsibility to chunk data for parsers.
+    Actually, no `pxi` parser could support this feature alone, since it is the lexers' responsibility to chunk data for parsers.
     Currently there is no dedicated lexer that supports chunking multi-line csv files, but there may be in the future.
 4.  Currently, the plugin only supports marshallers for `csv`.
     This will change in the upcoming versions.
@@ -73,21 +75,21 @@ Please report issues [in the tracker][issues]!
 
 ## License
 
-`@pfx/dsv` is [MIT licensed][license].
+`pxi-dsv` is [MIT licensed][license].
 
-[actions]: https://github.com/Yord/pfx-dsv/actions
-[contribute]: https://github.com/Yord/pf
-[issues]: https://github.com/Yord/pf/issues
-[license]: https://github.com/Yord/pfx-dsv/blob/master/LICENSE
+[actions]: https://github.com/Yord/pxi-dsv/actions
+[contribute]: https://github.com/Yord/pxi
+[issues]: https://github.com/Yord/pxi/issues
+[license]: https://github.com/Yord/pxi-dsv/blob/master/LICENSE
 [node]: https://nodejs.org/
-[npm-package]: https://www.npmjs.com/package/@pfx/dsv
-[pf]: https://github.com/Yord/pf
-[pfrc-module]: https://github.com/Yord/pf#pfrc-module
-[shield-license]: https://img.shields.io/npm/l/@pfx/dsv?color=yellow&labelColor=313A42
-[shield-node]: https://img.shields.io/node/v/@pfx/dsv?color=red&labelColor=313A42
-[shield-npm]: https://img.shields.io/npm/v/@pfx/dsv.svg?color=orange&labelColor=313A42
+[npm-package]: https://www.npmjs.com/package/pxi-dsv
+[pxi]: https://github.com/Yord/pxi
+[pxi-module]: https://github.com/Yord/pxi#pxi-module
+[shield-license]: https://img.shields.io/npm/l/pxi-dsv?color=yellow&labelColor=313A42
+[shield-node]: https://img.shields.io/node/v/pxi-dsv?color=red&labelColor=313A42
+[shield-npm]: https://img.shields.io/npm/v/pxi-dsv.svg?color=orange&labelColor=313A42
 [shield-prs]: https://img.shields.io/badge/PRs-welcome-green.svg?labelColor=313A42
-[shield-unit-tests-linux]: https://github.com/Yord/pfx-dsv/workflows/linux/badge.svg?branch=master
-[shield-unit-tests-macos]: https://github.com/Yord/pfx-dsv/workflows/macos/badge.svg?branch=master
-[shield-unit-tests-windows]: https://github.com/Yord/pfx-dsv/workflows/windows/badge.svg?branch=master
+[shield-unit-tests-linux]: https://github.com/Yord/pxi-dsv/workflows/linux/badge.svg?branch=master
+[shield-unit-tests-macos]: https://github.com/Yord/pxi-dsv/workflows/macos/badge.svg?branch=master
+[shield-unit-tests-windows]: https://github.com/Yord/pxi-dsv/workflows/windows/badge.svg?branch=master
 [teaser]: ./teaser.gif
