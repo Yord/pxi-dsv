@@ -171,16 +171,16 @@ function dsv (defaults) {
             record2.push(field)
           } else if (typeof field === 'number') {
             if (Number.isNaN(field)) {
-              record2.push('null')
+              record2.push(null)
             } else {
               record2.push(field.toString())
             }
           } else if (typeof field === 'boolean') {
             record2.push(field.toString())
           } else if (typeof field === 'undefined') {
-            record2.push('null')
+            record2.push(null)
           } else if (field === null) {
-            record2.push('null')
+            record2.push(null)
           } else if (Array.isArray(field)) {
             if (_allowListValues) {
               // in case of string values
