@@ -3,7 +3,7 @@ const handleMissingOption = require('../shared/handleMissingOption')
 module.exports = {
   name: 'dsv',
   desc: (
-    'is a delimiter-separated values parser:\n\n' +
+    'is a delimiter-separated values deserializer:\n\n' +
     '--pdelimiter, --delimiter, -D [char]\nDelimiter used to separate values.\n\n' +
     '--pquote, --quote, -Q [char]\nCharacter used to quote strings.\n\n' +
     '--pescape, --escape, -C [char]\nCharacter used to escape quote in strings.\n\n' +
@@ -97,14 +97,14 @@ function dsv (defaults) {
       return {err, values: values2}
     }
 
-    return (tokens, lines) => {
+    return (chunks, lines) => {
       let err       = []
       const jsons   = []
 
       const start   = ignoreDataHeader ? 1 : 0
 
-      for (let i = start; i < tokens.length; i++) {
-        const token = tokens[i]
+      for (let i = start; i < chunks.length; i++) {
+        const chunk = chunks[i]
         
         let values  = []
         let from    = 0
@@ -116,8 +116,8 @@ function dsv (defaults) {
         let hasQuotes        = false
         let hasEscapedQuotes = false
 
-        for (let at = 0; at < (token || '').length; at++) {
-          const ch  = token.charAt(at)
+        for (let at = 0; at < (chunk || '').length; at++) {
+          const ch  = chunk.charAt(at)
 
           if (inQuote) {
                                         hasQuotes        = true
@@ -145,8 +145,8 @@ function dsv (defaults) {
             else if (ch === _delimiter) valueFound       = true
           }
 
-          if (valueFound || at === token.length - 1) {
-            let value  = token.slice(from, valueFound ? at : at + 1)
+          if (valueFound || at === chunk.length - 1) {
+            let value  = chunk.slice(from, valueFound ? at : at + 1)
             valueFound = false
             from       = at + 1
 
@@ -156,12 +156,12 @@ function dsv (defaults) {
             values.push(value)
           }
 
-          if (at === token.length - 1 && ch === _delimiter) {
+          if (at === chunk.length - 1 && ch === _delimiter) {
             values.push('')
           }
         }
 
-        if (token === '') values.push(token)
+        if (chunk === '') values.push(chunk)
 
         if (keysLength === 0 && !returnTypeObject) {
           keysLength = values.length

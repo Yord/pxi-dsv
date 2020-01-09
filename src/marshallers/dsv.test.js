@@ -18,7 +18,7 @@ test('marshals a dsv file with missing options and verbose 0', () => {
     {msg: 'Please provide mheader, header or H option'}
   ]
 
-  const jsonsTokensDefaults = (
+  const jsonsStrDefaults = (
     boolean().chain(fixedLength =>
       unicodeStringJsonObjectListFixedLength([]).map(jsons => {
         const str = ''
@@ -35,7 +35,7 @@ test('marshals a dsv file with missing options and verbose 0', () => {
   )
   
   assert(
-    property(jsonsTokensDefaults, ({jsons, str, defaults}) =>
+    property(jsonsStrDefaults, ({jsons, str, defaults}) =>
       expect(
         marshallerFactory(defaults)(argv)(jsons)
       ).toStrictEqual(
@@ -488,7 +488,7 @@ test('marshalls a dsv file with variable values lengths and the fixed length opt
   )
 })
 
-test('parses a dsv file and trim whitespaces', () => {
+test('deserializes a dsv file and trim whitespaces', () => {
   const err                 = []
 
   const argv                = {verbose: 0}
@@ -553,7 +553,7 @@ test('parses a dsv file and trim whitespaces', () => {
 test('marshalls a dsv file and convert empty values to nulls', () => {
   const argv  = {verbose: 0}
 
-  const jsonsTokensDefaultsErr = (
+  const jsonsChunksDefaultsErr = (
     oneof(...recordSeparators).chain(recordSeparator =>
       oneof(...delimiters).chain(delimiter =>
         oneof(...quoteOrEscape).chain(quote =>
@@ -615,7 +615,7 @@ test('marshalls a dsv file and convert empty values to nulls', () => {
   )
   
   assert(
-    property(jsonsTokensDefaultsErr, ({jsons, str, defaults, err}) =>
+    property(jsonsChunksDefaultsErr, ({jsons, str, defaults, err}) =>
       expect(
         marshallerFactory(defaults)(argv)(jsons)
       ).toStrictEqual(

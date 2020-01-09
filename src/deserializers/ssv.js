@@ -3,7 +3,7 @@ const dsv = require('./dsv')
 module.exports = {
   name: 'ssv',
   desc: (
-    'is a space-separated values parser. It is a variant of dsv, but differs in its default values: ' +
+    'is a space-separated values deserializer. It is a variant of dsv, but differs in its default values: ' +
     "--delimiter is set to ' ', --quote and --escape to '\"', " +
     'and the --skip-header, --skip-empty-values, and --trim-whitespaces flags are turned on by default. ' +
     'To turn them off, ssv supports the following additional options:\n\n' +
