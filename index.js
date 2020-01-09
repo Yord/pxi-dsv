@@ -1,5 +1,5 @@
 module.exports = {
-  lexers:      [],
+  chunkers:    [],
   parsers:     [
     require('./src/parsers/dsv'),
     require('./src/parsers/csv'),

@@ -64,8 +64,8 @@ This plugin has the following limitations:
     This means, the current `tsv` implementation works just fine, but a dedicated implementation should be more performant.
     A dedicated implementation may come at some time in the future.
 3.  The `csv` parser does not appear to support multi-line values, aka values with line breaks inside quotes.
-    Actually, no `pxi` parser could support this feature alone, since it is the lexers' responsibility to chunk data for parsers.
-    Currently there is no dedicated lexer that supports chunking multi-line csv files, but there may be in the future.
+    Actually, no `pxi` parser could support this feature alone, since it is the chunkers' responsibility to chunk data for parsers.
+    Currently there is no dedicated chunker that supports chunking multi-line csv files, but there may be in the future.
 4.  Currently, the plugin only supports marshallers for `csv`.
     This will change in the upcoming versions.
 
