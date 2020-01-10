@@ -783,3 +783,79 @@ test('serializes a dsv file and fill missing values with a filling string', () =
     )
   )
 })
+
+test('serializes a dsv file with delimiters embedded in values', () => {
+  const argv  = {verbose: 0}
+
+  const jsonsChunksDefaultsErr = (
+    oneof(...recordSeparators).chain(recordSeparator =>
+      oneof(...delimiters).chain(delimiter =>
+        oneof(...quoteOrEscape).chain(quote =>
+          oneof(...quoteOrEscape).chain(escape =>
+            boolean().chain(fixedLength =>
+              unicodeStringJsonObjectListFixedLength([delimiter, quote, escape], 2).chain(jsons => 
+                integer(0, jsons.length - 1).map(noOfDelimiterLines => {
+                  const err = []
+
+                  const _jsons = noOfDelimiterLines === 0 ? (
+                    jsons
+                  ) : (
+                    jsons
+                    .slice(0, noOfDelimiterLines)
+                    .map(json =>
+                      Object.keys(json)
+                      .reduce((acc, key, id) => ({...acc, [key+id]: json[key] + delimiter + json[key]}), {})
+                    )
+                    .concat(jsons.slice(noOfDelimiterLines))
+                  )
+
+                  const str = noOfDelimiterLines === 0 ? (
+                    [Object.keys(_jsons[0]).join(delimiter)]
+                    .concat(_jsons.map(json => Object.values(json).join(delimiter)))
+                    .join(recordSeparator) + recordSeparator
+                  ) : (
+                    [Object.keys(_jsons[0]).join(delimiter)]
+                    .concat(
+                      _jsons.slice(0, noOfDelimiterLines)
+                      .map(json => Object.values(json).map(value => quote + value + quote).join(delimiter))
+                    )
+                    .concat(
+                      _jsons.slice(noOfDelimiterLines).map(json => Object.values(json).join(delimiter))
+                    )
+                    .join(recordSeparator) + recordSeparator
+                  )
+                  
+                  return {
+                    noOfNulls: noOfDelimiterLines,
+                    err,
+                    jsons: _jsons,
+                    str,
+                    defaults: {
+                      recordSeparator,
+                      delimiter,
+                      quote,
+                      escape,
+                      header:      '[]',
+                      fixedLength,
+                      emptyAsNull: true
+                    }
+                  }
+                })
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+  
+  assert(
+    property(jsonsChunksDefaultsErr, ({jsons, str, defaults, err}) =>
+      expect(
+        serializerFactory(defaults)(argv)(jsons)
+      ).toStrictEqual(
+        {err, str}
+      )
+    )
+  )
+})
