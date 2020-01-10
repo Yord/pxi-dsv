@@ -8,6 +8,7 @@ module.exports = {
     '--pquote, --quote, -Q [char]\nCharacter used to quote strings.\n\n' +
     '--pescape, --escape, -C [char]\nCharacter used to escape quote in strings.\n\n' +
     '--pheader, --header, -H [string]\nProvide a custom header as a JSON array string.\n\n' +
+    '--pheader-prefix, --header-prefix, -P [string]\nIn cases where more values are given than headers, this prefix is used to generate a header name for the remaining values.\n\n' +
     '--pskip-header, --skip-header, -S [boolean]\nDo not interpret first line as header.\n\n' +
     '--pfixed-length, --fixed-length, -F [boolean]\nPost-processing #1: Controls, whether each line has the same number of values. Ignores all deviating lines while reporting errors.\n\n' +
     '--pskip-empty-values, --skip-empty-values, -E [boolean]\nPost-processing #2: Skip values that are empty strings.\n\n' +
@@ -28,6 +29,7 @@ function dsv (defaults) {
       pquote,           quote,           Q,
       pescape,          escape,          C,
       pheader,          header,          H,
+      pheaderPrefix,    headerPrefix,    P,
       pskipHeader,      skipHeader,      S,
       pfixedLength,     fixedLength,     F,
       pskipEmptyValues, skipEmptyValues, E,
@@ -41,6 +43,7 @@ function dsv (defaults) {
     const _quote           = pquote           || quote           || Q || defaults.quote
     const _escape          = pescape          || escape          || C || defaults.escape
     const _header          = pheader          || header          || H || defaults.header
+    const _headerPrefix    = pheaderPrefix    || headerPrefix    || P || defaults.headerPrefix    || '_'
     const _skipHeader      = pskipHeader      || skipHeader      || S || defaults.skipHeader      || false
     const _fixedLength     = pfixedLength     || fixedLength     || F || defaults.fixedLength     || false
     const _skipEmptyValues = pskipEmptyValues || skipEmptyValues || E || defaults.skipEmptyValues || false
@@ -186,7 +189,7 @@ function dsv (defaults) {
             for (let j = 0; j < until; j++) {
               const key    = keys[j]
               const value  = values[j]
-              const key2   = typeof key   !== 'undefined' ? key   : '#' + j
+              const key2   = typeof key   !== 'undefined' ? key   : _headerPrefix + (j + 1)
               const value2 = typeof value !== 'undefined' ? value : null
               json[key2]   = value2
             }
