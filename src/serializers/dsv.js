@@ -150,12 +150,12 @@ function dsv (defaults) {
       let value2    = value
       let addQuotes = false
 
-      if (value.indexOf(_quote) > -1) {
+      if (value !== null && value.indexOf(_delimiter) > -1) {
+        addQuotes   = true
+      }
+      if (value !== null && value.indexOf(_quote) > -1) {
         addQuotes   = true
         value2      = value2.replace(regexpQuote, _escape + _quote)
-      }
-      if (value.indexOf(_delimiter) > -1) {
-        addQuotes   = true
       }
 
       return addQuotes ? _quote + value2 + _quote : value2
