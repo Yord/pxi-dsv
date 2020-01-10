@@ -5,17 +5,17 @@ const {dsv: serializerFactory} = require('./dsv')
 
 const recordSeparators = ['\n', '\r\n', '|', '@'].map(constant)
 const delimiters       = [',', ';', '.', '/', '-', '+', '$', '#', '!'].map(constant)
-const quoteOrEscape    = ["'", '"', '`', '\\'].map(constant)
+const quoteOrEscape    = ["'", '"', '`'].map(constant)
 
 test('serializes a dsv file with missing options and verbose 0', () => {
   const argv                = {verbose: 0}
 
   const err                 = [
-    {msg: 'Please provide mrecordSeparator, recordSeparator or R option'},
-    {msg: 'Please provide mdelimiter, delimiter or D option'},
-    {msg: 'Please provide mquote, quote or Q option'},
-    {msg: 'Please provide mescape, escape or C option'},
-    {msg: 'Please provide mheader, header or H option'}
+    {msg: 'Please provide srecordSeparator, recordSeparator or R option'},
+    {msg: 'Please provide sdelimiter, delimiter or D option'},
+    {msg: 'Please provide squote, quote or Q option'},
+    {msg: 'Please provide sescape, escape or C option'},
+    {msg: 'Please provide sheader, header or H option'}
   ]
 
   const jsonsStrDefaults = (
@@ -49,11 +49,11 @@ test('serializes a dsv file with missing options and verbose 1', () => {
   const argv                = {verbose: 1}
 
   const err                 = [
-    {msg: 'Please provide mrecordSeparator, recordSeparator or R option', line: -1},
-    {msg: 'Please provide mdelimiter, delimiter or D option',             line: -1},
-    {msg: 'Please provide mquote, quote or Q option',                     line: -1},
-    {msg: 'Please provide mescape, escape or C option',                   line: -1},
-    {msg: 'Please provide mheader, header or H option',                   line: -1}
+    {msg: 'Please provide srecordSeparator, recordSeparator or R option', line: -1},
+    {msg: 'Please provide sdelimiter, delimiter or D option',             line: -1},
+    {msg: 'Please provide squote, quote or Q option',                     line: -1},
+    {msg: 'Please provide sescape, escape or C option',                   line: -1},
+    {msg: 'Please provide sheader, header or H option',                   line: -1}
   ]
 
   const jsonsStrDefaults = (
@@ -87,11 +87,11 @@ test('serializes a dsv file with missing options and verbose 2', () => {
   const argv                = {verbose: 2}
 
   const err                 = [
-    {msg: 'Please provide mrecordSeparator, recordSeparator or R option', line: -1, info: JSON.stringify(argv)},
-    {msg: 'Please provide mdelimiter, delimiter or D option',             line: -1, info: JSON.stringify(argv)},
-    {msg: 'Please provide mquote, quote or Q option',                     line: -1, info: JSON.stringify(argv)},
-    {msg: 'Please provide mescape, escape or C option',                   line: -1, info: JSON.stringify(argv)},
-    {msg: 'Please provide mheader, header or H option',                   line: -1, info: JSON.stringify(argv)}
+    {msg: 'Please provide srecordSeparator, recordSeparator or R option', line: -1, info: JSON.stringify(argv)},
+    {msg: 'Please provide sdelimiter, delimiter or D option',             line: -1, info: JSON.stringify(argv)},
+    {msg: 'Please provide squote, quote or Q option',                     line: -1, info: JSON.stringify(argv)},
+    {msg: 'Please provide sescape, escape or C option',                   line: -1, info: JSON.stringify(argv)},
+    {msg: 'Please provide sheader, header or H option',                   line: -1, info: JSON.stringify(argv)}
   ]
 
   const jsonsStrDefaults = (
@@ -185,11 +185,15 @@ test('serializes a dsv file with provided header', () => {
                 const len = Object.keys(jsons[0]).length
 
                 return array(base64(), len, len).map(keys => {
+                  const headers = keys.map(key =>
+                    key.indexOf(delimiter) > -1 ? quote + key + quote : key
+                  )
+
                   const _jsons  = jsons.map(json =>
                     Object.values(json).reduce((acc, value, i) => ({...acc, [keys[i]+i]: value}), {})
                   )
                   const str = (
-                    [keys.join(delimiter)]
+                    [headers.join(delimiter)]
                     .concat(_jsons.map(json => Object.values(json).join(delimiter)))
                     .join(recordSeparator) + recordSeparator
                   )
@@ -714,6 +718,21 @@ test('serializes a dsv file and fill missing values with a filling string', () =
             oneof(...quoteOrEscape).chain(escape =>
               unicodeStringJsonObjectListFixedLength([delimiter, quote, escape], 3).chain(jsons =>
                 integer(0, Object.keys(jsons[0]).length - 1).map(noOfNulls => {
+                  let _nullAs   = ''
+                  let addQuotes = false
+                  for (let at = 0; at < nullAs.length; at++) {
+                    const ch = nullAs[at]
+                    if (ch === delimiter) {
+                      addQuotes = true
+                      _nullAs  += delimiter
+                    }
+                    else if(ch === quote) {
+                      addQuotes = true
+                      _nullAs  += escape + quote
+                    } else _nullAs += ch
+                  }
+                  if (addQuotes) _nullAs = quote + _nullAs + quote
+
                   const err = []
 
                   const _jsons = (
@@ -739,7 +758,7 @@ test('serializes a dsv file and fill missing values with a filling string', () =
                     .concat(
                       jsons.slice(1).map(json =>
                         Object.values(json).slice(0, Object.keys(json).length - noOfNulls)
-                        .concat(Object.values(json).slice(Object.keys(json).length - noOfNulls).map(() => nullAs))
+                        .concat(Object.values(json).slice(Object.keys(json).length - noOfNulls).map(() => _nullAs))
                         .join(delimiter)
                       )
                     )
@@ -757,8 +776,6 @@ test('serializes a dsv file and fill missing values with a filling string', () =
                       quote,
                       escape,
                       header:    '[]',
-                      //skipNull:  true,
-                      //emptyAsNull: true,
                       nullAs
                     }
                   }
@@ -773,6 +790,161 @@ test('serializes a dsv file and fill missing values with a filling string', () =
 
   assert(
     property(jsonsStrDefaultsErr, ({jsons, str, defaults, err}) =>
+      expect(
+        serializerFactory(defaults)(argv)(jsons)
+      ).toStrictEqual(
+        {err, str}
+      )
+    )
+  )
+})
+
+test('serializes a dsv file with delimiters embedded in values', () => {
+  const argv  = {verbose: 0}
+
+  const jsonsChunksDefaultsErr = (
+    oneof(...recordSeparators).chain(recordSeparator =>
+      oneof(...delimiters).chain(delimiter =>
+        oneof(...quoteOrEscape).chain(quote =>
+          oneof(...quoteOrEscape).chain(escape =>
+            boolean().chain(fixedLength =>
+              unicodeStringJsonObjectListFixedLength([delimiter, quote, escape], 2).chain(jsons => 
+                integer(0, jsons.length - 1).map(noOfDelimiterLines => {
+                  const err = []
+
+                  const _jsons = noOfDelimiterLines === 0 ? (
+                    jsons
+                  ) : (
+                    jsons
+                    .slice(0, noOfDelimiterLines)
+                    .map(json =>
+                      Object.keys(json)
+                      .reduce((acc, key, id) => ({...acc, [key+id]: json[key] + delimiter + json[key]}), {})
+                    )
+                    .concat(jsons.slice(noOfDelimiterLines))
+                  )
+
+                  const str = noOfDelimiterLines === 0 ? (
+                    [Object.keys(_jsons[0]).join(delimiter)]
+                    .concat(_jsons.map(json => Object.values(json).join(delimiter)))
+                    .join(recordSeparator) + recordSeparator
+                  ) : (
+                    [Object.keys(_jsons[0]).join(delimiter)]
+                    .concat(
+                      _jsons.slice(0, noOfDelimiterLines)
+                      .map(json => Object.values(json).map(value => quote + value + quote).join(delimiter))
+                    )
+                    .concat(
+                      _jsons.slice(noOfDelimiterLines).map(json => Object.values(json).join(delimiter))
+                    )
+                    .join(recordSeparator) + recordSeparator
+                  )
+                  
+                  return {
+                    noOfNulls: noOfDelimiterLines,
+                    err,
+                    jsons: _jsons,
+                    str,
+                    defaults: {
+                      recordSeparator,
+                      delimiter,
+                      quote,
+                      escape,
+                      header:      '[]',
+                      fixedLength,
+                      emptyAsNull: true
+                    }
+                  }
+                })
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+  
+  assert(
+    property(jsonsChunksDefaultsErr, ({jsons, str, defaults, err}) =>
+      expect(
+        serializerFactory(defaults)(argv)(jsons)
+      ).toStrictEqual(
+        {err, str}
+      )
+    )
+  )
+})
+
+test('serializes a dsv file with quotes embedded in values', () => {
+  const argv  = {verbose: 0}
+
+  const jsonsChunksDefaultsErr = (
+    oneof(...recordSeparators).chain(recordSeparator =>
+      oneof(...delimiters).chain(delimiter =>
+        oneof(...quoteOrEscape).chain(quote =>
+          oneof(...quoteOrEscape).chain(escape =>
+            boolean().chain(fixedLength =>
+              unicodeStringJsonObjectListFixedLength([delimiter, quote, escape], 2).chain(jsons => 
+                integer(0, jsons.length - 1).map(noOfQuoteLines => {
+                  const err = []
+
+                  const _jsons = noOfQuoteLines === 0 ? (
+                    jsons
+                  ) : (
+                    jsons
+                    .slice(0, noOfQuoteLines)
+                    .map(json =>
+                      Object.keys(json)
+                      .reduce((acc, key, id) => ({...acc, [key+id]: json[key] + quote + json[key]}), {})
+                    )
+                    .concat(jsons.slice(noOfQuoteLines))
+                  )
+
+                  const str = noOfQuoteLines === 0 ? (
+                    [Object.keys(_jsons[0]).join(delimiter)]
+                    .concat(_jsons.map(json => Object.values(json).join(delimiter)))
+                    .join(recordSeparator) + recordSeparator
+                  ) : (
+                    [Object.keys(_jsons[0]).join(delimiter)]
+                    .concat(
+                      _jsons.slice(0, noOfQuoteLines)
+                      .map(json =>
+                        Object.values(json)
+                        .map(value => quote + value.replace(new RegExp(quote, 'g'), escape + quote) + quote).join(delimiter)
+                      )
+                    )
+                    .concat(
+                      _jsons.slice(noOfQuoteLines).map(json => Object.values(json).join(delimiter))
+                    )
+                    .join(recordSeparator) + recordSeparator
+                  )
+                  
+                  return {
+                    noOfNulls: noOfQuoteLines,
+                    err,
+                    jsons: _jsons,
+                    str,
+                    defaults: {
+                      recordSeparator,
+                      delimiter,
+                      quote,
+                      escape,
+                      header:      '[]',
+                      fixedLength,
+                      emptyAsNull: true
+                    }
+                  }
+                })
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+  
+  assert(
+    property(jsonsChunksDefaultsErr, ({jsons, str, defaults, err}) =>
       expect(
         serializerFactory(defaults)(argv)(jsons)
       ).toStrictEqual(

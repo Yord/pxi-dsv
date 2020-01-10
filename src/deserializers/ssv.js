@@ -7,20 +7,20 @@ module.exports = {
     "--delimiter is set to ' ', --quote and --escape to '\"', " +
     'and the --skip-header, --skip-empty-values, and --trim-whitespaces flags are turned on by default. ' +
     'To turn them off, ssv supports the following additional options:\n\n' +
-    '--no-pskip-header, --no-skip-header, -S [boolean]\nTurns off --pskip-header, --skip-header, and -S.\n\n' +
-    '--no-pskip-empty-values, --no-skip-empty-values, -E [boolean]\nTurns off --pskip-empty-values, --skip-empty-values, and -E.\n\n' +
-    '--no-ptrim-whitespaces, --no-trim-whitespaces, -W [boolean]\nTurns off --ptrim-whitespaces, --trim-whitespaces, and -W.\n'
+    '--no-dskip-header, --no-skip-header, -S [boolean]\nTurns off --dskip-header, --skip-header, and -S.\n\n' +
+    '--no-dskip-empty-values, --no-skip-empty-values, -E [boolean]\nTurns off --dskip-empty-values, --skip-empty-values, and -E.\n\n' +
+    '--no-dtrim-whitespaces, --no-trim-whitespaces, -W [boolean]\nTurns off --dtrim-whitespaces, --trim-whitespaces, and -W.\n'
   ),
   func: argv => {
     const {
-      noPskipHeader,      noSkipHeader,      S,
-      noPskipEmptyValues, noSkipEmptyValues, E,
-      noPtrimWhitespaces, noTrimWhitespaces, W
+      noDskipHeader,      noSkipHeader,      S,
+      noDskipEmptyValues, noSkipEmptyValues, E,
+      noDtrimWhitespaces, noTrimWhitespaces, W
     } = argv
 
-    const skipHeader      = !(noPskipHeader      || noSkipHeader      || S || false)
-    const skipEmptyValues = !(noPskipEmptyValues || noSkipEmptyValues || E || false)
-    const trimWhitespaces = !(noPtrimWhitespaces || noTrimWhitespaces || W || false)
+    const skipHeader      = !(noDskipHeader      || noSkipHeader      || S || false)
+    const skipEmptyValues = !(noDskipEmptyValues || noSkipEmptyValues || E || false)
+    const trimWhitespaces = !(noDtrimWhitespaces || noTrimWhitespaces || W || false)
 
     return dsv.dsv({
       delimiter:   ' ',
@@ -29,13 +29,13 @@ module.exports = {
       header:      '[]'
     })({
       ...argv,
-      pskipHeader:      skipHeader,
+      dskipHeader:      skipHeader,
       skipHeader:       skipHeader,
       S:                skipHeader,
-      pskipEmptyValues: skipEmptyValues,
+      dskipEmptyValues: skipEmptyValues,
       skipEmptyValues:  skipEmptyValues,
       E:                skipEmptyValues,
-      ptrimWhitespaces: trimWhitespaces,
+      dtrimWhitespaces: trimWhitespaces,
       trimWhitespaces:  trimWhitespaces,
       W:                trimWhitespaces
     })

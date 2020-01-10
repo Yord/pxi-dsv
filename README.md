@@ -1,6 +1,6 @@
 ![pxi-dsv teaser][teaser]
 
-🧚`pxi-dsv` is a delimiter-separated values plugin for `pxi` (pixie), the small, fast and magical command-line data processor.
+🧚`pxi-dsv` is a delimiter-separated values plugin for `pxi` (pixie), the small, fast, and magical command-line data processor.
 
 See the [`pxi` github repository][pxi] for more details!
 
@@ -54,20 +54,26 @@ This plugin comes with the following `pxi` extensions:
 
 This plugin has the following limitations:
 
-1.  The deserializers do not cast strings to other data types, like numbers or booleans.
+1.  **No type casting**:
+    The deserializers do not cast strings to other data types, like numbers or booleans.
     This is intentional.
     Since different use cases need different data types, and some use cases need their integers to be strings,
     e.g. in case of IDs, there is no way to know for sure when to cast a string to another type.
     If you need different types, you may cast strings by using functions.
-2.  The `tsv` deserializer is implemented in terms of the `dsv` deserializer and thus supports quotes and escaping tabs.
-    Other implementations of `tsv` deserializers do not allow tabs in values and have no need of quotes and escapes.
-    This means, the current `tsv` implementation works just fine, but a dedicated implementation should be more performant.
-    A dedicated implementation may come at some time in the future.
-3.  The `csv` deserializer does not appear to support multi-line values, aka values with line breaks inside quotes.
-    Actually, no `pxi` deserializer could support this feature alone, since it is the chunkers' responsibility to chunk data for deserializers.
+2.  **Integer header order**:
+    Headers that are integers are always printed before other headers.
+    This is an implementation detail of the way JavaScript orders object keys internally.
+    Although this is an inconvenience, this behaviour will stay for now, since changing it would reduce performance.
+    If you have a good way to solve this and retain performance, please let me know.
+3.  **Non-optimal tsv (de-)serializer implementations**:
+    The `tsv` deserializer is implemented in terms of the `dsv` deserializer and thus supports quotes and escaping tabs.
+    Other implementations of `tsv` deserializers do not allow tabs in values and thus have no need of quotes and escapes.
+    This means, the current `tsv` implementation works just fine, but an implementation without quotes should be faster.
+    Such an implementation may come at some point in the future.
+4.  **No multi-line CSV files**: The `csv` deserializer does not appear to support multi-line values, aka values with line breaks inside quotes.
+    Actually, no `pxi` deserializer could support this feature alone,
+    since it is the chunkers' responsibility to chunk data.
     Currently there is no dedicated chunker that supports chunking multi-line csv files, but there may be in the future.
-4.  Currently, the plugin only supports serializers for `csv`.
-    This will change in the upcoming versions.
 
 ## Reporting Issues
 

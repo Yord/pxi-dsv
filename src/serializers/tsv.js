@@ -1,12 +1,12 @@
 const dsv = require('./dsv')
 
 module.exports = {
-  name: 'csv',
+  name: 'tsv',
   desc: (
-    'is a comma-separated values serializer. It is a variant of dsv, but differs in its default values: ' +
-    "--record-separator is set to '\\n', --delimiter is set to ',', --quote and --escape to '\"', " +
-    'and the --fixed-length flag is turned on by default. ' +
-    'To turn it off, csv supports the following additional options:\n\n' +
+    'is a tab-separated values serializer. It is a variant of dsv, but differs in its default values: ' +
+    "--record-separator is set to '\\n', --delimiter is set to '\\t' (tab), --quote and --escape to '\"' " +
+    '(but should not be used in tsv files), and the --fixed-length flag is turned on by default. ' +
+    'To turn it off, tsv supports the following additional options:\n\n' +
     '--no-sfixed-length, --no-fixed-length, -F [boolean]\nTurns off --sfixed-length, --fixed-length, and -F.\n'
   ),
   func: argv => {
@@ -16,7 +16,7 @@ module.exports = {
 
     return dsv.dsv({
       recordSeparator: '\n',
-      delimiter:       ',',
+      delimiter:       '\t',
       quote:           '"',
       escape:          '"',
       header:          '[]'
