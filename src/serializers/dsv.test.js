@@ -11,11 +11,11 @@ test('serializes a dsv file with missing options and verbose 0', () => {
   const argv                = {verbose: 0}
 
   const err                 = [
-    {msg: 'Please provide mrecordSeparator, recordSeparator or R option'},
-    {msg: 'Please provide mdelimiter, delimiter or D option'},
-    {msg: 'Please provide mquote, quote or Q option'},
-    {msg: 'Please provide mescape, escape or C option'},
-    {msg: 'Please provide mheader, header or H option'}
+    {msg: 'Please provide srecordSeparator, recordSeparator or R option'},
+    {msg: 'Please provide sdelimiter, delimiter or D option'},
+    {msg: 'Please provide squote, quote or Q option'},
+    {msg: 'Please provide sescape, escape or C option'},
+    {msg: 'Please provide sheader, header or H option'}
   ]
 
   const jsonsStrDefaults = (
@@ -49,11 +49,11 @@ test('serializes a dsv file with missing options and verbose 1', () => {
   const argv                = {verbose: 1}
 
   const err                 = [
-    {msg: 'Please provide mrecordSeparator, recordSeparator or R option', line: -1},
-    {msg: 'Please provide mdelimiter, delimiter or D option',             line: -1},
-    {msg: 'Please provide mquote, quote or Q option',                     line: -1},
-    {msg: 'Please provide mescape, escape or C option',                   line: -1},
-    {msg: 'Please provide mheader, header or H option',                   line: -1}
+    {msg: 'Please provide srecordSeparator, recordSeparator or R option', line: -1},
+    {msg: 'Please provide sdelimiter, delimiter or D option',             line: -1},
+    {msg: 'Please provide squote, quote or Q option',                     line: -1},
+    {msg: 'Please provide sescape, escape or C option',                   line: -1},
+    {msg: 'Please provide sheader, header or H option',                   line: -1}
   ]
 
   const jsonsStrDefaults = (
@@ -87,11 +87,11 @@ test('serializes a dsv file with missing options and verbose 2', () => {
   const argv                = {verbose: 2}
 
   const err                 = [
-    {msg: 'Please provide mrecordSeparator, recordSeparator or R option', line: -1, info: JSON.stringify(argv)},
-    {msg: 'Please provide mdelimiter, delimiter or D option',             line: -1, info: JSON.stringify(argv)},
-    {msg: 'Please provide mquote, quote or Q option',                     line: -1, info: JSON.stringify(argv)},
-    {msg: 'Please provide mescape, escape or C option',                   line: -1, info: JSON.stringify(argv)},
-    {msg: 'Please provide mheader, header or H option',                   line: -1, info: JSON.stringify(argv)}
+    {msg: 'Please provide srecordSeparator, recordSeparator or R option', line: -1, info: JSON.stringify(argv)},
+    {msg: 'Please provide sdelimiter, delimiter or D option',             line: -1, info: JSON.stringify(argv)},
+    {msg: 'Please provide squote, quote or Q option',                     line: -1, info: JSON.stringify(argv)},
+    {msg: 'Please provide sescape, escape or C option',                   line: -1, info: JSON.stringify(argv)},
+    {msg: 'Please provide sheader, header or H option',                   line: -1, info: JSON.stringify(argv)}
   ]
 
   const jsonsStrDefaults = (

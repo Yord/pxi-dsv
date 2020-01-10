@@ -3,14 +3,16 @@ const dsv = require('./dsv')
 module.exports = {
   name: 'csv2',
   desc: (
-    'is a comma-separated values serializer. ' +
+    'is a comma-separated values serializer. It is a variant of dsv, but differs in its default values: ' +
+    "--record-separator is set to '\\n', --delimiter is set to ',', --quote and --escape to '\"', " +
+    'and the --fixed-length flag is turned on by default. ' +
     'To turn it off, csv supports the following additional options:\n\n' +
-    '--no-mfixed-length, --no-fixed-length, -F [boolean]\nTurns off --mfixed-length, --fixed-length, and -F.\n'
+    '--no-sfixed-length, --no-fixed-length, -F [boolean]\nTurns off --sfixed-length, --fixed-length, and -F.\n'
   ),
   func: argv => {
-    const {noMfixedLength, noFixedLength, F} = argv
+    const {noSfixedLength, noFixedLength, F} = argv
 
-    const fixedLength = !(noMfixedLength || noFixedLength || F || false)
+    const fixedLength = !(noSfixedLength || noFixedLength || F || false)
 
     return dsv.dsv({
       recordSeparator: '\n',
@@ -20,7 +22,7 @@ module.exports = {
       header:          '[]'
     })({
       ...argv,
-      mfixedLength: fixedLength,
+      sfixedLength: fixedLength,
       fixedLength:  fixedLength,
       F:            fixedLength
     })
