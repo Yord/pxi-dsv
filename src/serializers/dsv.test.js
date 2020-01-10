@@ -5,7 +5,7 @@ const {dsv: serializerFactory} = require('./dsv')
 
 const recordSeparators = ['\n', '\r\n', '|', '@'].map(constant)
 const delimiters       = [',', ';', '.', '/', '-', '+', '$', '#', '!'].map(constant)
-const quoteOrEscape    = ["'", '"', '`', '\\'].map(constant)
+const quoteOrEscape    = ["'", '"', '`'].map(constant)
 
 test('serializes a dsv file with missing options and verbose 0', () => {
   const argv                = {verbose: 0}
