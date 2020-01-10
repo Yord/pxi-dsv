@@ -25,18 +25,18 @@ function dsv (defaults) {
   return argv => {
     const {
       verbose,
-      mrecordSeparator,      recordSeparator,      R,
-      mdelimiter,            delimiter,            D,
-      mquote,                quote,                Q,
-      mescape,               escape,               C,
-      mheader,               header,               H,
-      mskipHeader,           skipHeader,           S,
-      mallowListValues,      allowListValues,      L,
-      mfixedLength,          fixedLength,          F,
-      mtrimWhitespaces,      trimWhitespaces,      W,
-      memptyAsNull,          emptyAsNull,          I,
-      mskipNull,             skipNull,             N,
-      mnullAs,               nullAs,               A
+      mrecordSeparator, recordSeparator, R,
+      mdelimiter,       delimiter,       D,
+      mquote,           quote,           Q,
+      mescape,          escape,          C,
+      mheader,          header,          H,
+      mskipHeader,      skipHeader,      S,
+      mfixedLength,     fixedLength,     F,
+      mallowListValues, allowListValues, L,
+      mtrimWhitespaces, trimWhitespaces, W,
+      memptyAsNull,     emptyAsNull,     I,
+      mskipNull,        skipNull,        N,
+      mnullAs,          nullAs,          A
     } = argv
 
     const _recordSeparator = mrecordSeparator      || recordSeparator      || R || defaults.recordSeparator
