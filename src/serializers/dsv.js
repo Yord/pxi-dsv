@@ -187,8 +187,6 @@ function dsv (defaults) {
           const field = record[j]
 
           if (typeof field === 'string') {
-            // add quotes to records?
-            // escape quotes in records?
             record2.push(field)
           } else if (typeof field === 'number') {
             if (Number.isNaN(field)) {
