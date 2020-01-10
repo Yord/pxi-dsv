@@ -202,25 +202,23 @@ function dsv (defaults) {
             record2.push(null)
           } else if (Array.isArray(field)) {
             if (_allowListValues) {
-              // in case of string values
-              // add quotes to records?
-              // escape quotes in records?
+              record2.push(JSON.stringify(field))
             } else {
               const msg  = {msg: 'Arrays are not allowed as fields'}
               const line = verbose > 0 ? {line: -1}                    : {}
               const info = verbose > 1 ? {info: JSON.stringify(field)} : {}
               err.push(Object.assign(msg, line, info))
+              record2.push(null)
             }
           } else if (typeof field === 'object') {
             if (_allowListValues) {
-              // in case of string values
-              // add quotes to records?
-              // escape quotes in records?
+              record2.push(JSON.stringify(field))
             } else {
               const msg  = {msg: 'Objects are not allowed as fields'}
               const line = verbose > 0 ? {line: -1}                    : {}
               const info = verbose > 1 ? {info: JSON.stringify(field)} : {}
               err.push(Object.assign(msg, line, info))
+              record2.push(null)
             }
           } else {
             const msg  = {msg: 'Type not allowed as field'}
