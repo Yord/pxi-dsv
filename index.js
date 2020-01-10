@@ -10,6 +10,7 @@ module.exports = {
   serializers:   [
     require('./src/serializers/dsv'),
     require('./src/serializers/csv'),
-    require('./src/serializers/csv2')
+    require('./src/serializers/tsv'),
+    require('./src/serializers/ssv')
   ]
 }
