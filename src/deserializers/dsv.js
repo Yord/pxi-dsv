@@ -4,18 +4,18 @@ module.exports = {
   name: 'dsv',
   desc: (
     'is a delimiter-separated values deserializer:\n\n' +
-    '--pdelimiter, --delimiter, -D [char]\nDelimiter used to separate values.\n\n' +
-    '--pquote, --quote, -Q [char]\nCharacter used to quote strings.\n\n' +
-    '--pescape, --escape, -C [char]\nCharacter used to escape quote in strings.\n\n' +
-    '--pheader, --header, -H [string]\nProvide a custom header as a JSON array string.\n\n' +
-    '--pheader-prefix, --header-prefix, -P [string]\nIn cases where more values are given than headers, this prefix is used to generate a header name for the remaining values.\n\n' +
-    '--pskip-header, --skip-header, -S [boolean]\nDo not interpret first line as header.\n\n' +
-    '--pfixed-length, --fixed-length, -F [boolean]\nPost-processing #1: Controls, whether each line has the same number of values. Ignores all deviating lines while reporting errors.\n\n' +
-    '--pskip-empty-values, --skip-empty-values, -E [boolean]\nPost-processing #2: Skip values that are empty strings.\n\n' +
-    '--ptrim-whitespaces, --trim-whitespaces, -W [boolean]\nPost-processing #3: Trim whitespaces around values.\n\n' +
-    '--pempty-as-null, --empty-as-null, -I [boolean]\nPost-processing #4: Treat empty fields as null.\n\n' +
-    '--pskip-null, --skip-null, -N [boolean]\nPost-processing #5: Skip values that are null.\n\n' +
-    '--pmissing-as-null, --missing-as-null, -M [boolean]\nPost-processing #6: Treat missing fields (if #values < #keys) as null.\n'
+    '--ddelimiter, --delimiter, -D [char]\nDelimiter used to separate values.\n\n' +
+    '--dquote, --quote, -Q [char]\nCharacter used to quote strings.\n\n' +
+    '--descape, --escape, -C [char]\nCharacter used to escape quote in strings.\n\n' +
+    '--dheader, --header, -H [string]\nProvide a custom header as a JSON array string.\n\n' +
+    '--dheader-prefix, --header-prefix, -P [string]\nIn cases where more values are given than headers, this prefix is used to generate a header name for the remaining values.\n\n' +
+    '--dskip-header, --skip-header, -S [boolean]\nDo not interpret first line as header.\n\n' +
+    '--dfixed-length, --fixed-length, -F [boolean]\nPost-processing #1: Controls, whether each line has the same number of values. Ignores all deviating lines while reporting errors.\n\n' +
+    '--dskip-empty-values, --skip-empty-values, -E [boolean]\nPost-processing #2: Skip values that are empty strings.\n\n' +
+    '--dtrim-whitespaces, --trim-whitespaces, -W [boolean]\nPost-processing #3: Trim whitespaces around values.\n\n' +
+    '--dempty-as-null, --empty-as-null, -I [boolean]\nPost-processing #4: Treat empty fields as null.\n\n' +
+    '--dskip-null, --skip-null, -N [boolean]\nPost-processing #5: Skip values that are null.\n\n' +
+    '--dmissing-as-null, --missing-as-null, -M [boolean]\nPost-processing #6: Treat missing fields (if #values < #keys) as null.\n'
   ),
   func: dsv({}),
   dsv
@@ -25,38 +25,38 @@ function dsv (defaults) {
   return argv => {
     const {
       verbose,
-      pdelimiter,       delimiter,       D,
-      pquote,           quote,           Q,
-      pescape,          escape,          C,
-      pheader,          header,          H,
-      pheaderPrefix,    headerPrefix,    P,
-      pskipHeader,      skipHeader,      S,
-      pfixedLength,     fixedLength,     F,
-      pskipEmptyValues, skipEmptyValues, E,
-      ptrimWhitespaces, trimWhitespaces, W,
-      pemptyAsNull,     emptyAsNull,     I,
-      pskipNull,        skipNull,        N,
-      pmissingAsNull,   missingAsNull,   M
+      ddelimiter,       delimiter,       D,
+      dquote,           quote,           Q,
+      descape,          escape,          C,
+      dheader,          header,          H,
+      dheaderPrefix,    headerPrefix,    P,
+      dskipHeader,      skipHeader,      S,
+      dfixedLength,     fixedLength,     F,
+      dskipEmptyValues, skipEmptyValues, E,
+      dtrimWhitespaces, trimWhitespaces, W,
+      demptyAsNull,     emptyAsNull,     I,
+      dskipNull,        skipNull,        N,
+      dmissingAsNull,   missingAsNull,   M
     } = argv
 
-    const _delimiter       = pdelimiter       || delimiter       || D || defaults.delimiter
-    const _quote           = pquote           || quote           || Q || defaults.quote
-    const _escape          = pescape          || escape          || C || defaults.escape
-    const _header          = pheader          || header          || H || defaults.header
-    const _headerPrefix    = pheaderPrefix    || headerPrefix    || P || defaults.headerPrefix    || '_'
-    const _skipHeader      = pskipHeader      || skipHeader      || S || defaults.skipHeader      || false
-    const _fixedLength     = pfixedLength     || fixedLength     || F || defaults.fixedLength     || false
-    const _skipEmptyValues = pskipEmptyValues || skipEmptyValues || E || defaults.skipEmptyValues || false
-    const _trimWhitespaces = ptrimWhitespaces || trimWhitespaces || W || defaults.trimWhitespaces || false
-    const _emptyAsNull     = pemptyAsNull     || emptyAsNull     || I || defaults.emptyAsNull     || false
-    const _skipNull        = pskipNull        || skipNull        || N || defaults.skipNull        || false
-    const _missingAsNull   = pmissingAsNull   || missingAsNull   || M || defaults.missingAsNull   || false
+    const _delimiter       = ddelimiter       || delimiter       || D || defaults.delimiter
+    const _quote           = dquote           || quote           || Q || defaults.quote
+    const _escape          = descape          || escape          || C || defaults.escape
+    const _header          = dheader          || header          || H || defaults.header
+    const _headerPrefix    = dheaderPrefix    || headerPrefix    || P || defaults.headerPrefix    || '_'
+    const _skipHeader      = dskipHeader      || skipHeader      || S || defaults.skipHeader      || false
+    const _fixedLength     = dfixedLength     || fixedLength     || F || defaults.fixedLength     || false
+    const _skipEmptyValues = dskipEmptyValues || skipEmptyValues || E || defaults.skipEmptyValues || false
+    const _trimWhitespaces = dtrimWhitespaces || trimWhitespaces || W || defaults.trimWhitespaces || false
+    const _emptyAsNull     = demptyAsNull     || emptyAsNull     || I || defaults.emptyAsNull     || false
+    const _skipNull        = dskipNull        || skipNull        || N || defaults.skipNull        || false
+    const _missingAsNull   = dmissingAsNull   || missingAsNull   || M || defaults.missingAsNull   || false
   
     const missingOptions = [
-      handleMissingOption(_delimiter, 'pdelimiter, delimiter or D', argv),
-      handleMissingOption(_quote,     'pquote, quote or Q',         argv),
-      handleMissingOption(_escape,    'pescape, escape or C',       argv),
-      handleMissingOption(_header,    'pheader, header or H',       argv)
+      handleMissingOption(_delimiter, 'ddelimiter, delimiter or D', argv),
+      handleMissingOption(_quote,     'dquote, quote or Q',         argv),
+      handleMissingOption(_escape,    'descape, escape or C',       argv),
+      handleMissingOption(_header,    'dheader, header or H',       argv)
     ]
     let err = []
     for (let i = 0; i < missingOptions.length; i++) {

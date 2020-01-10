@@ -782,10 +782,10 @@ test('deserializes a dsv file with missing options and verbose 0', () => {
   const argv                = {verbose: 0}
 
   const err                 = [
-    {msg: 'Please provide pdelimiter, delimiter or D option'},
-    {msg: 'Please provide pquote, quote or Q option'},
-    {msg: 'Please provide pescape, escape or C option'},
-    {msg: 'Please provide pheader, header or H option'}
+    {msg: 'Please provide ddelimiter, delimiter or D option'},
+    {msg: 'Please provide dquote, quote or Q option'},
+    {msg: 'Please provide descape, escape or C option'},
+    {msg: 'Please provide dheader, header or H option'}
   ]
 
   const lines               = anything()
@@ -830,10 +830,10 @@ test('deserializes a dsv file with missing options and verbose 1', () => {
   const argv                = {verbose: 1}
 
   const err                 = [
-    {msg: 'Please provide pdelimiter, delimiter or D option', line: -1},
-    {msg: 'Please provide pquote, quote or Q option',         line: -1},
-    {msg: 'Please provide pescape, escape or C option',       line: -1},
-    {msg: 'Please provide pheader, header or H option',       line: -1}
+    {msg: 'Please provide ddelimiter, delimiter or D option', line: -1},
+    {msg: 'Please provide dquote, quote or Q option',         line: -1},
+    {msg: 'Please provide descape, escape or C option',       line: -1},
+    {msg: 'Please provide dheader, header or H option',       line: -1}
   ]
 
   const lines               = anything()
@@ -878,10 +878,10 @@ test('deserializes a dsv file with missing options and verbose 2', () => {
   const argv                = {verbose: 2}
 
   const err                 = [
-    {msg: 'Please provide pdelimiter, delimiter or D option', line: -1, info: JSON.stringify(argv)},
-    {msg: 'Please provide pquote, quote or Q option',         line: -1, info: JSON.stringify(argv)},
-    {msg: 'Please provide pescape, escape or C option',       line: -1, info: JSON.stringify(argv)},
-    {msg: 'Please provide pheader, header or H option',       line: -1, info: JSON.stringify(argv)}
+    {msg: 'Please provide ddelimiter, delimiter or D option', line: -1, info: JSON.stringify(argv)},
+    {msg: 'Please provide dquote, quote or Q option',         line: -1, info: JSON.stringify(argv)},
+    {msg: 'Please provide descape, escape or C option',       line: -1, info: JSON.stringify(argv)},
+    {msg: 'Please provide dheader, header or H option',       line: -1, info: JSON.stringify(argv)}
   ]
 
   const lines               = anything()
