@@ -1,6 +1,6 @@
 ![pxi-dsv teaser][teaser]
 
-🧚`pxi-dsv` is a delimiter-separated values plugin for `pxi` (pixie), the small, fast and magic command-line data processor.
+🧚`pxi-dsv` is a delimiter-separated values plugin for `pxi` (pixie), the small, fast and magical command-line data processor.
 
 See the [`pxi` github repository][pxi] for more details!
 
