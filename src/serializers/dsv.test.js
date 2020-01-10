@@ -185,11 +185,15 @@ test('serializes a dsv file with provided header', () => {
                 const len = Object.keys(jsons[0]).length
 
                 return array(base64(), len, len).map(keys => {
+                  const headers = keys.map(key =>
+                    key.indexOf(delimiter) > -1 ? quote + key + quote : key
+                  )
+
                   const _jsons  = jsons.map(json =>
                     Object.values(json).reduce((acc, value, i) => ({...acc, [keys[i]+i]: value}), {})
                   )
                   const str = (
-                    [keys.join(delimiter)]
+                    [headers.join(delimiter)]
                     .concat(_jsons.map(json => Object.values(json).join(delimiter)))
                     .join(recordSeparator) + recordSeparator
                   )
