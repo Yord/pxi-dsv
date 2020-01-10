@@ -718,6 +718,21 @@ test('serializes a dsv file and fill missing values with a filling string', () =
             oneof(...quoteOrEscape).chain(escape =>
               unicodeStringJsonObjectListFixedLength([delimiter, quote, escape], 3).chain(jsons =>
                 integer(0, Object.keys(jsons[0]).length - 1).map(noOfNulls => {
+                  let _nullAs   = ''
+                  let addQuotes = false
+                  for (let at = 0; at < nullAs.length; at++) {
+                    const ch = nullAs[at]
+                    if (ch === delimiter) {
+                      addQuotes = true
+                      _nullAs  += delimiter
+                    }
+                    else if(ch === quote) {
+                      addQuotes = true
+                      _nullAs  += escape + quote
+                    } else _nullAs += ch
+                  }
+                  if (addQuotes) _nullAs = quote + _nullAs + quote
+
                   const err = []
 
                   const _jsons = (
@@ -743,7 +758,7 @@ test('serializes a dsv file and fill missing values with a filling string', () =
                     .concat(
                       jsons.slice(1).map(json =>
                         Object.values(json).slice(0, Object.keys(json).length - noOfNulls)
-                        .concat(Object.values(json).slice(Object.keys(json).length - noOfNulls).map(() => nullAs))
+                        .concat(Object.values(json).slice(Object.keys(json).length - noOfNulls).map(() => _nullAs))
                         .join(delimiter)
                       )
                     )
