@@ -757,8 +757,6 @@ test('serializes a dsv file and fill missing values with a filling string', () =
                       quote,
                       escape,
                       header:    '[]',
-                      //skipNull:  true,
-                      //emptyAsNull: true,
                       nullAs
                     }
                   }
