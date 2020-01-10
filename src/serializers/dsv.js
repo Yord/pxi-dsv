@@ -56,6 +56,8 @@ function dsv (defaults) {
                              typeof defaults.nullAs !== 'undefined' ? defaults.nullAs
                                                                     : undefined
 
+    const regexpQuote = new RegExp(_quote, 'g')
+
     const missingOptions = [
       handleMissingOption(_recordSeparator, 'mrecordSeparator, recordSeparator or R', argv),
       handleMissingOption(_delimiter,       'mdelimiter, delimiter or D',             argv),
@@ -136,12 +138,27 @@ function dsv (defaults) {
         let record = records[i]
         record     = preprocessingF(record)
 
-        str += record[0]
-        for (let i = 1; i < record.length; i++) str += _delimiter + record[i]
+        str += maybeWithQuotes(record[0])
+        for (let i = 1; i < record.length; i++) str += _delimiter + maybeWithQuotes(record[i])
         str += _recordSeparator
       }
 
       return ({err, str})
+    }
+
+    function maybeWithQuotes (value) {
+      let value2    = value
+      let addQuotes = false
+
+      if (value.indexOf(_quote) > -1) {
+        addQuotes   = true
+        value2      = value2.replace(regexpQuote, _escape + _quote)
+      }
+      if (value.indexOf(_delimiter) > -1) {
+        addQuotes   = true
+      }
+
+      return addQuotes ? _quote + value2 + _quote : value2
     }
 
     function jsonsToRecords (jsons) {
