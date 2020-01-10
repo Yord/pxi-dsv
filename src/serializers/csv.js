@@ -1,7 +1,7 @@
 const dsv = require('./dsv')
 
 module.exports = {
-  name: 'csv2',
+  name: 'csv',
   desc: (
     'is a comma-separated values serializer. It is a variant of dsv, but differs in its default values: ' +
     "--record-separator is set to '\\n', --delimiter is set to ',', --quote and --escape to '\"', " +
