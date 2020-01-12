@@ -39,17 +39,17 @@ function dsv (defaults) {
       snullAs,          nullAs,          A
     } = argv
 
-    const _recordSeparator = srecordSeparator      || recordSeparator      || R || defaults.recordSeparator
-    const _delimiter       = sdelimiter            || delimiter            || D || defaults.delimiter
-    const _quote           = squote                || quote                || Q || defaults.quote
-    const _escape          = sescape               || escape               || C || defaults.escape
-    const _header          = sheader               || header               || H || defaults.header
-    const _skipHeader      = sskipHeader           || skipHeader           || S || defaults.skipHeader      || false
-    const _allowListValues = sallowListValues      || allowListValues      || L || defaults.allowListValues || false
-    const _fixedLength     = sfixedLength          || fixedLength          || F || defaults.fixedLength     || false
-    const _trimWhitespaces = strimWhitespaces      || trimWhitespaces      || W || defaults.trimWhitespaces || false
-    const _emptyAsNull     = semptyAsNull          || emptyAsNull          || I || defaults.emptyAsNull     || false
-    const _skipNull        = sskipNull             || skipNull             || N || defaults.skipNull        || false
+    const _recordSeparator = srecordSeparator || recordSeparator || R || defaults.recordSeparator
+    const _delimiter       = sdelimiter       || delimiter       || D || defaults.delimiter
+    const _quote           = squote           || quote           || Q || defaults.quote
+    const _escape          = sescape          || escape          || C || defaults.escape
+    const _header          = sheader          || header          || H || defaults.header
+    const _skipHeader      = sskipHeader      || skipHeader      || S || defaults.skipHeader      || false
+    const _allowListValues = sallowListValues || allowListValues || L || defaults.allowListValues || false
+    const _fixedLength     = sfixedLength     || fixedLength     || F || defaults.fixedLength     || false
+    const _trimWhitespaces = strimWhitespaces || trimWhitespaces || W || defaults.trimWhitespaces || false
+    const _emptyAsNull     = semptyAsNull     || emptyAsNull     || I || defaults.emptyAsNull     || false
+    const _skipNull        = sskipNull        || skipNull        || N || defaults.skipNull        || false
     const _nullAs          = typeof snullAs         !== 'undefined' ? snullAs :
                              typeof nullAs          !== 'undefined' ? nullAs  :
                              typeof A               !== 'undefined' ? A       :
