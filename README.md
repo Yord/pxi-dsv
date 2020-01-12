@@ -98,4 +98,4 @@ Please report issues [in the tracker][issues]!
 [shield-unit-tests-linux]: https://github.com/Yord/pxi-dsv/workflows/linux/badge.svg?branch=master
 [shield-unit-tests-macos]: https://github.com/Yord/pxi-dsv/workflows/macos/badge.svg?branch=master
 [shield-unit-tests-windows]: https://github.com/Yord/pxi-dsv/workflows/windows/badge.svg?branch=master
-[teaser]: https://github.com/Yord/pxi-dsv/blob/master/teaser.gif?raw=true
+[teaser]: https://github.com/Yord/pxi/blob/master/teaser.gif?raw=true
