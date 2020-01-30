@@ -56,8 +56,6 @@ function dsv (defaults) {
                              typeof defaults.nullAs !== 'undefined' ? defaults.nullAs
                                                                     : undefined
 
-    const regexpQuote = new RegExp(_quote, 'g')
-
     const missingOptions = [
       handleMissingOption(_recordSeparator, 'srecordSeparator, recordSeparator or R', argv),
       handleMissingOption(_delimiter,       'sdelimiter, delimiter or D',             argv),
@@ -153,9 +151,13 @@ function dsv (defaults) {
       if (value !== null && value.indexOf(_delimiter) > -1) {
         addQuotes   = true
       }
-      if (value !== null && value.indexOf(_quote) > -1) {
-        addQuotes   = true
-        value2      = value2.replace(regexpQuote, _escape + _quote)
+      if (value !== null) {
+        let quoteIndex = value.indexOf(_quote)
+        while (quoteIndex > -1) {
+          addQuotes    = true
+          value2       = value2.slice(0, quoteIndex) + _escape + value2.slice(quoteIndex)
+          quoteIndex   = value.indexOf(_quote, quoteIndex + 1)
+        }
       }
 
       return addQuotes ? _quote + value2 + _quote : value2
