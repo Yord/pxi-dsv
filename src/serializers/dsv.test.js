@@ -5,7 +5,7 @@ const {dsv: serializerFactory} = require('./dsv')
 
 const recordSeparators = ['\n', '\r\n', '|', '@'].map(constant)
 const delimiters       = [',', ';', '.', '/', '-', '+', '$', '#', '!'].map(constant)
-const quoteOrEscape    = ["'", '"', '`'].map(constant)
+const quoteOrEscape    = ["'", '"', '`', '\\'].map(constant)
 
 test('serializes a dsv file with missing options and verbose 0', () => {
   const argv                = {verbose: 0}
@@ -910,7 +910,15 @@ test('serializes a dsv file with quotes embedded in values', () => {
                       _jsons.slice(0, noOfQuoteLines)
                       .map(json =>
                         Object.values(json)
-                        .map(value => quote + value.replace(new RegExp(quote, 'g'), escape + quote) + quote).join(delimiter)
+                        .map(value =>
+                          quote +
+                          value.split('').reduce(
+                            (str, ch) => str + (ch === quote ? escape + ch : ch),
+                            ""
+                          ) +
+                          quote
+                        )
+                        .join(delimiter)
                       )
                     )
                     .concat(
