@@ -39,18 +39,20 @@ function dsv (defaults) {
       dmissingAsNull,   missingAsNull,   M
     } = argv
 
-    const _delimiter       = ddelimiter       || delimiter       || D || defaults.delimiter
-    const _quote           = dquote           || quote           || Q || defaults.quote
-    const _escape          = descape          || escape          || C || defaults.escape
-    const _header          = dheader          || header          || H || defaults.header
-    const _headerPrefix    = dheaderPrefix    || headerPrefix    || P || defaults.headerPrefix    || '_'
-    const _skipHeader      = dskipHeader      || skipHeader      || S || defaults.skipHeader      || false
-    const _fixedLength     = dfixedLength     || fixedLength     || F || defaults.fixedLength     || false
-    const _skipEmptyValues = dskipEmptyValues || skipEmptyValues || E || defaults.skipEmptyValues || false
-    const _trimWhitespaces = dtrimWhitespaces || trimWhitespaces || W || defaults.trimWhitespaces || false
-    const _emptyAsNull     = demptyAsNull     || emptyAsNull     || I || defaults.emptyAsNull     || false
-    const _skipNull        = dskipNull        || skipNull        || N || defaults.skipNull        || false
-    const _missingAsNull   = dmissingAsNull   || missingAsNull   || M || defaults.missingAsNull   || false
+    const char = (string = '') => string.slice(0, 1)
+
+    const _delimiter       = char(ddelimiter)      || char(delimiter)       || char(D) || defaults.delimiter
+    const _quote           = char(dquote)          || char(quote)           || char(Q) || defaults.quote
+    const _escape          = char(descape)         || char(escape)          || char(C) || defaults.escape
+    const _header          =      dheader          ||      header           || H       || defaults.header
+    const _headerPrefix    =      dheaderPrefix    ||      headerPrefix     || P       || defaults.headerPrefix    || '_'
+    const _skipHeader      =      dskipHeader      ||      skipHeader       || S       || defaults.skipHeader      || false
+    const _fixedLength     =      dfixedLength     ||      fixedLength      || F       || defaults.fixedLength     || false
+    const _skipEmptyValues =      dskipEmptyValues ||      skipEmptyValues  || E       || defaults.skipEmptyValues || false
+    const _trimWhitespaces =      dtrimWhitespaces ||      trimWhitespaces  || W       || defaults.trimWhitespaces || false
+    const _emptyAsNull     =      demptyAsNull     ||      emptyAsNull      || I       || defaults.emptyAsNull     || false
+    const _skipNull        =      dskipNull        ||      skipNull         || N       || defaults.skipNull        || false
+    const _missingAsNull   =      dmissingAsNull   ||      missingAsNull    || M       || defaults.missingAsNull   || false
   
     const missingOptions = [
       handleMissingOption(_delimiter, 'ddelimiter, delimiter or D', argv),
